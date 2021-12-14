@@ -12,44 +12,40 @@ fun main() {
 }
 
 fun parseInput(): Pair<String, Map<String, String>> {
-    val template = input.lines()[0]
+    val polymer = input.lines()[0]
     val rules = input.lines().drop(2).map { it.split(" -> ") }.associate { (a, b) -> a to b }
-    return Pair(template, rules)
+    return Pair(polymer, rules)
 }
 
-fun part1(template: String, rules: Map<String, String>) {
-    val pairCounts = applyRulesAndGetPairCounts(template, 10, rules)
-    val delta = getMostVsLeastDelta(pairCounts)
+fun part1(polymer: String, rules: Map<String, String>) {
+    val delta = applyRulesAndMaxMinDelta(polymer, 10, rules)
     println("Part 1: $delta")
 }
 
-fun part2(template: String, rules: Map<String, String>) {
-    val pairCounts = applyRulesAndGetPairCounts(template, 40, rules)
-    val delta = getMostVsLeastDelta(pairCounts)
+fun part2(polymer: String, rules: Map<String, String>) {
+    val delta = applyRulesAndMaxMinDelta(polymer, 40, rules)
     println("Part 2: $delta")
 }
 
-private fun applyRulesAndGetPairCounts(template: String, times: Int, rules: Map<String, String>): Map<String, Long> {
-    val originalPairCounts = template.windowed(2).groupingBy { it }.eachCount().mapValues { it.value.toLong() }
-    return (1..times).fold(originalPairCounts) { pairCounts, _ ->
+private fun applyRulesAndMaxMinDelta(polymer: String, times: Int, rules: Map<String, String>): Long {
+    // Keep track of the counts of unique pairs instead of the whole polymer. Repeatedly turn each pair into a new pair
+    // of pairs by applying transform rules, and sum up the counts of the new pairs.
+    val originalPairCounts = polymer.windowed(2).groupingBy { it }.eachCount().mapValues { it.value.toLong() }
+    val newPairCounts = (1..times).fold(originalPairCounts) { pairCounts, _ ->
         pairCounts
-            .flatMap { (pair, count) ->
-                val newPairs = rules[pair]?.let { listOf(pair[0] + it, it + pair[1]) } ?: listOf(pair)
-                newPairs.map { it to count }
-            }
+            .flatMap { (pair, count) -> rules[pair]!!.let { listOf(pair[0] + it, it + pair[1]) }.map { it to count } }
             .groupingBy { it.first }
             .sumCounts()
     }
-}
 
-private fun getMostVsLeastDelta(newPairCounts: Map<String, Long>): Long {
+    // Count the first letter of each pair. Add one extra for the second letter of the final pair (which is the last letter in the polymer)
     val letterCounts = newPairCounts
-        .flatMap { (pair, count) -> listOf(pair[0] to count, pair[1] to count) }
+        .map { (pair, count) -> pair[0] to count }
+        .plus(polymer.last() to 1L)
         .groupingBy { it.first }
         .sumCounts()
-    val max = letterCounts.maxOf { it.value } / 2
-    val min = letterCounts.minOf { it.value } / 2
-    return max - min + 1
+
+    return letterCounts.maxOf { it.value } - letterCounts.minOf { it.value }
 }
 
 fun <T> Grouping<Pair<T, Long>, T>.sumCounts(): Map<T, Long> {
