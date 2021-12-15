@@ -2,6 +2,8 @@ package day15
 
 import day11.cartesianProduct
 import java.util.*
+import kotlin.math.abs
+import kotlin.system.measureTimeMillis
 
 private val classLoader: ClassLoader = object {}.javaClass.classLoader
 private val input = classLoader.getResource("text/day15")!!.readText()
@@ -22,13 +24,19 @@ private fun parseInput(): Topology {
 }
 
 fun part1(topology: Topology) {
-    val end = findPathToEnd(topology)
-    println("Part 1: ${end.totalCost}")
+    val executionTime = measureTimeMillis {
+        val end = findPathToEnd(topology)
+        println("Part 1: ${end.totalCost}")
+    }
+    println("(took $executionTime milliseconds)")
 }
 
 fun part2(topology: Topology) {
-    val end = findPathToEnd(topology)
-    println("Part 2: ${end.totalCost}")
+    val executionTime = measureTimeMillis {
+        val end = findPathToEnd(topology)
+        println("Part 2: ${end.totalCost}")
+    }
+    println("(took $executionTime milliseconds)")
 }
 
 /**
@@ -39,7 +47,12 @@ private fun findPathToEnd(topology: Topology): PathNode {
     val destination = topology.getEnd()
 
     val seen = mutableSetOf<Coordinate>()
-    val queue = PriorityQueue<PathNode>(topology.cells.size, compareBy { it.totalCost })
+    val queue = PriorityQueue<PathNode>(
+        topology.cells.size,
+        // Including cardinal distance in priority comparison is a performance optimization that is mainly helpful for
+        // when there are long stretches of roughly uniform cell costs. However, it's almost useless in compeletely
+        // random topologies like the test data given by this challenge.
+        compareBy { it.totalCost + it.cell.location.cardinalDistanceTo(destination.location) })
     queue.add(start)
 
     while (queue.isNotEmpty()) {
@@ -52,6 +65,7 @@ private fun findPathToEnd(topology: Topology): PathNode {
 
         val maybeEndNode = newNeighbors.firstOrNull { it.cell == destination }
         if (maybeEndNode != null) {
+            println("(observed ${seen.size - queue.size} nodes)")
             return maybeEndNode
         }
 
@@ -103,7 +117,9 @@ data class Topology(val cells: Map<Coordinate, Cell>) {
 
 data class Cell(val location: Coordinate, val cost: Int)
 
-data class Coordinate(val x: Int, val y: Int)
+data class Coordinate(val x: Int, val y: Int) {
+    fun cardinalDistanceTo(other: Coordinate): Int = abs(x - other.x) + abs(y - other.y)
+}
 
 data class PathNode(val cell: Cell, val parent: PathNode?) {
     // Don't count start node in total cost
