@@ -52,7 +52,11 @@ private fun findPathToEnd(topology: Topology): PathNode {
         // Including cardinal distance in priority comparison is a performance optimization that is mainly helpful for
         // when there are long stretches of roughly uniform cell costs. However, it's almost useless in compeletely
         // random topologies like the test data given by this challenge.
-        compareBy { it.totalCost + it.cell.location.cardinalDistanceTo(destination.location) })
+        // All that said, there's some kind of bug I don't understand with using this; it causes the algo to find
+        // sub-optimal paths. I screwed up the impl somewhere and I don't know where. For simplicity, just revert to
+        // using the simpler cost function.
+//        compareBy { it.totalCost + it.cell.location.cardinalDistanceTo(destination.location) })
+        compareBy { it.totalCost })
     queue.add(start)
 
     while (queue.isNotEmpty()) {
@@ -118,10 +122,24 @@ data class Topology(val cells: Map<Coordinate, Cell>) {
 data class Cell(val location: Coordinate, val cost: Int)
 
 data class Coordinate(val x: Int, val y: Int) {
+    @Suppress("unused")
     fun cardinalDistanceTo(other: Coordinate): Int = abs(x - other.x) + abs(y - other.y)
 }
 
 data class PathNode(val cell: Cell, val parent: PathNode?) {
     // Don't count start node in total cost
     val totalCost: Long = parent?.let { it.totalCost + cell.cost } ?: 0
+
+    /**
+     * Turns recurse PathNode hierarchy into a list. Useful for debugging.
+     */
+    fun toList(): List<PathNode> {
+        val list = mutableListOf<PathNode>()
+        var node: PathNode? = this
+        while (node != null) {
+            list.add(node)
+            node = node.parent
+        }
+        return list.reversed()
+    }
 }
