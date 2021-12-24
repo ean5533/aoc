@@ -29,8 +29,6 @@ fun main() {
     printTimeTaken {
         val solution = solve(parse(input))
         val cost = solution.moves.sumOf { it.cost }
-//        solution.moves.forEach { println("${it.previous}\n${it.description} costing ${it.cost}") }
-//        println(solution.building)
         println("Part 1: $cost")
     }
 
@@ -38,8 +36,6 @@ fun main() {
         val newInput = insert(insert, input)
         val solution = solve(parse(newInput))
         val cost = solution.moves.sumOf { it.cost }
-//        solution.moves.forEach { println("${it.previous}\n${it.description} costing ${it.cost}") }
-//        println(solution.building)
         println("Part 2: $cost")
     }
 }
@@ -67,26 +63,26 @@ fun insert(toInsert: String, original: String): String =
 fun solve(building: Building): State {
     val initialState = State(building, listOf())
     val queue = PriorityQueue<State>(compareBy({ it.cost })).also { it.add(initialState) }
-    val seen = mutableSetOf(initialState.building)
-    var bestSolutionSoFar: State? = null
+    val seenBuildingsToLowestCost = mutableMapOf(initialState.building to 0)
 
-    while (queue.isNotEmpty() && (bestSolutionSoFar == null || queue.peek().cost < bestSolutionSoFar.cost)) {
+    while (queue.isNotEmpty()) {
         val state = queue.remove()
+        if (state.isSolved()) {
+            return state
+        }
 
         val nextStates = state.getNextPossibleStates()
-        val newSolution = nextStates.firstOrNull { it.isSolved() }
-        if (newSolution != null && (bestSolutionSoFar == null || bestSolutionSoFar.cost > newSolution.cost)) {
-            // We found a solution, but another cheaper one might still be found
-            bestSolutionSoFar = newSolution
-        }
 
-        nextStates.filterNot { seen.contains(it.building) }.forEach {
-            queue.add(it)
-            seen.add(it.building)
-        }
+        nextStates
+            // Only keep searching if we have found a cheaper path to a previously found state
+            .filter { nextState -> seenBuildingsToLowestCost[nextState.building]?.let { nextState.cost < it } ?: true }
+            .forEach {
+                queue.add(it)
+                seenBuildingsToLowestCost[it.building] = it.cost
+            }
     }
 
-    return bestSolutionSoFar ?: throw IllegalStateException("Could not find a solution")
+    throw IllegalStateException("Could not find a solution")
 }
 
 data class Building(val spaces: List<Space>) {
@@ -216,10 +212,8 @@ data class Node(val contents: Amphipod? = null) {
 
 enum class Amphipod(val cost: Int) { A(1), B(10), C(100), D(1000) }
 
-// TODO: remove [previous], only useful for debugging
-data class Move(val cost: Int, val description: String, val previous: Building) {
-    constructor(cost: Int, source: Space, destination: Space, previous: Building) :
-            this(cost, "${source.name} to ${destination.name}", previous)
+data class Move(val cost: Int, val description: String) {
+    constructor(cost: Int, source: Space, destination: Space) : this(cost, "${source.name} to ${destination.name}")
 }
 
 data class State(val building: Building, val moves: List<Move>) {
@@ -235,7 +229,7 @@ data class State(val building: Building, val moves: List<Move>) {
                     val stepsTaken = building.traverseSteps(source, destination)
                     State(
                         building.updateWith(listOf(newSource, newDestination)),
-                        moves + Move(stepsTaken * amphipod.cost, source, destination, building)
+                        moves + Move(stepsTaken * amphipod.cost, source, destination)
                     )
                 }
             }
