@@ -1,10 +1,7 @@
 package day21
 
-import day11.cartesianProduct
-import day14.sumCounts
-import day16.takeWhileInclusive
+import lib.*
 import java.lang.Long.max
-import kotlin.system.measureTimeMillis
 
 //val input = """
 //    Player 1 starting position: 4
@@ -65,7 +62,7 @@ private fun playBoardInAllUniverses(
         .last()
 }
 
-data class BoardState(
+private data class BoardState(
     val totalSpaces: Int,
     val goalScore: Int,
     val whoseTurn: Int,
@@ -82,9 +79,9 @@ data class BoardState(
     }
 }
 
-data class PlayerState(val currentSpace: Int, val score: Long = 0)
+private data class PlayerState(val currentSpace: Int, val score: Long = 0)
 
-interface Die {
+private interface Die {
     /**
      * Returns all possible values for the sum of the next 3 rolls. Values will be repeated if there are multiple
      * distinct rolls that produce that result (e.g. roll a 1 and then a 2, or roll a 2 and then a 1)
@@ -92,7 +89,7 @@ interface Die {
     fun getPossibleValues(): List<Int>
 }
 
-class StatefulDeterministicDie(private val minValue: Int, private val maxValue: Int) : Die {
+private class StatefulDeterministicDie(private val minValue: Int, private val maxValue: Int) : Die {
     // Note: we can cheat and get away with making this die have mutable state *only* because it produces a single
     // value. If it produced multiple values then we'd need to make all die immutable, attaching them to the board
     // state, for subsequent rolls across multiple boards.
@@ -109,19 +106,11 @@ class StatefulDeterministicDie(private val minValue: Int, private val maxValue: 
     override fun getPossibleValues(): List<Int> = listOf((0 until 3).sumOf { roll() })
 }
 
-class QuantumDie(minValue: Int, maxValue: Int) : Die {
+private class QuantumDie(minValue: Int, maxValue: Int) : Die {
     private val possibleValues = minValue..maxValue
     private val possibleSums = possibleValues
         .cartesianProduct(possibleValues).map { (a, b) -> a + b }
         .cartesianProduct(possibleValues).map { (a, b) -> a + b }
 
     override fun getPossibleValues(): List<Int> = possibleSums
-}
-
-fun Int.incrementInsideRange(min: Int, max: Int): Int = (this + 1).modToRange(min, max)
-
-fun Int.modToRange(min: Int, max: Int): Int = ((this - min) % max) + min
-
-fun printTimeTaken(block: () -> Unit) {
-    measureTimeMillis(block).also { println("(took $it ms)") }
 }

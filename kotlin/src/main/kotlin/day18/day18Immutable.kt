@@ -1,7 +1,8 @@
 package day18
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day18")!!.readText()
+import lib.loadResourceAsString
+
+private val input = loadResourceAsString("text/day18")
 
 
 fun main() {

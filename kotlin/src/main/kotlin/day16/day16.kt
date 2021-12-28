@@ -1,7 +1,10 @@
 package day16
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day16")!!.readText()
+import lib.loadResourceAsString
+import lib.next
+import lib.takeWhileInclusive
+
+private val input = loadResourceAsString("text/day16")
 
 
 fun main() {
@@ -19,12 +22,12 @@ private fun part2(packet: Packet) {
     println("Part 2: ${packet.value()}")
 }
 
-fun parseInput(): Packet {
+private fun parseInput(): Packet {
     val bits = input.map { it.digitToInt(16).toString(2).padStart(4, '0') }.joinToString("")
     return parsePacket(bits.iterator())
 }
 
-fun parsePacket(iterator: Iterator<Char>): Packet {
+private fun parsePacket(iterator: Iterator<Char>): Packet {
     val version = iterator.next(3).joinToString("").toInt(2)
     val type = iterator.next(3).joinToString("").toInt(2)
 
@@ -46,7 +49,7 @@ fun parsePacket(iterator: Iterator<Char>): Packet {
     }
 }
 
-interface Packet {
+private interface Packet {
     val version: Int
     val type: Int
 
@@ -54,7 +57,7 @@ interface Packet {
     fun value(): Long
 }
 
-data class LiteralPacket(override val version: Int, override val type: Int, val value: Long) : Packet {
+private data class LiteralPacket(override val version: Int, override val type: Int, val value: Long) : Packet {
     override fun sumOfVersions(): Int {
         return version
     }
@@ -64,7 +67,7 @@ data class LiteralPacket(override val version: Int, override val type: Int, val 
     }
 }
 
-data class OperatorPacket(override val version: Int, override val type: Int, val subPackets: List<Packet>) : Packet {
+private data class OperatorPacket(override val version: Int, override val type: Int, val subPackets: List<Packet>) : Packet {
     override fun sumOfVersions(): Int {
         return version + subPackets.sumOf { it.sumOfVersions() }
     }
@@ -81,21 +84,4 @@ data class OperatorPacket(override val version: Int, override val type: Int, val
             else -> throw RuntimeException("unknown operator packet type $type")
         }
     }
-}
-
-fun <T> Iterator<T>.next(num: Int): List<T> {
-    return (0 until num).map { next() }
-}
-
-/**
- * Like takeWhile, but also includes the first element that didn't satisfy the condition
- */
-inline fun <T> Sequence<T>.takeWhileInclusive(predicate: (T) -> Boolean): List<T> {
-    val list = ArrayList<T>()
-    for (item in this) {
-        list.add(item)
-        if (!predicate(item))
-            break
-    }
-    return list
 }

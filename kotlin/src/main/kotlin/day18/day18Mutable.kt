@@ -1,9 +1,9 @@
 package day18
 
-import day11.cartesianProduct
+import lib.cartesianProduct
+import lib.loadResourceAsString
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day18")!!.readText()
+private val input = loadResourceAsString("text/day18")
 
 
 fun main() {

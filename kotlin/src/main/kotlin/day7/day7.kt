@@ -1,9 +1,9 @@
 package day7
 
+import lib.loadResourceAsString
 import kotlin.math.abs
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day7")!!.readText()
+private val input = loadResourceAsString("text/day7")
 
 fun main() {
     val numbers = input.split(",").map(String::toLong)

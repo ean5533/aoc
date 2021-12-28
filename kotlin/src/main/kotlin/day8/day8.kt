@@ -1,7 +1,9 @@
 package day8
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day8")!!.readText()
+import lib.intersectAll
+import lib.loadResourceAsString
+
+private val input = loadResourceAsString("text/day8")
 
 private val lettersToDigit = mapOf(
     "abcefg".toSet() to 0,
@@ -26,7 +28,7 @@ fun main() {
     part2(displays)
 }
 
-fun part1(displays: List<Display>) {
+private fun part1(displays: List<Display>) {
     val uniqueDigitLengths = listOf(2, 4, 3, 7)
     val countOf1478 =
         displays.sumOf { display -> display.outputSignals.count { signal -> uniqueDigitLengths.contains(signal.length) } }
@@ -34,7 +36,7 @@ fun part1(displays: List<Display>) {
     println("The total count of of 1s, 4s, 7s, and 8s in all displays is $countOf1478")
 }
 
-fun part2(displays: List<Display>) {
+private fun part2(displays: List<Display>) {
     val sum = displays.sumOf { display ->
         val translationKey = getTranslationKey(display.uniqueSignals)
         fun translateLetters(letters: Set<Char>) = letters.map { translationKey[it]!! }.toSet()
@@ -55,7 +57,7 @@ fun part2(displays: List<Display>) {
  *
  * We could model all of this logic using bitwise operations for improved performance, but it would be far harder to read IMO.
  */
-fun getTranslationKey(uniqueSignals: Set<String>): Map<Char, Char> {
+private fun getTranslationKey(uniqueSignals: Set<String>): Map<Char, Char> {
     val one = uniqueSignals.single { it.length == 2 }.toSet()
     val four = uniqueSignals.single { it.length == 4 }.toSet()
     val seven = uniqueSignals.single { it.length == 3 }.toSet()
@@ -89,8 +91,4 @@ fun getTranslationKey(uniqueSignals: Set<String>): Map<Char, Char> {
     )
 }
 
-fun <T> List<Set<T>>.intersectAll(): Set<T> {
-    return reduce { prev, next -> prev.intersect(next) }
-}
-
-data class Display(val uniqueSignals: Set<String>, val outputSignals: List<String>)
+private data class Display(val uniqueSignals: Set<String>, val outputSignals: List<String>)

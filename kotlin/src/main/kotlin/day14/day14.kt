@@ -1,7 +1,9 @@
 package day14
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day14")!!.readText()
+import lib.loadResourceAsString
+import lib.sumCounts
+
+private val input = loadResourceAsString("text/day14")
 
 
 fun main() {
@@ -11,18 +13,18 @@ fun main() {
     part2(template, rules)
 }
 
-fun parseInput(): Pair<String, Map<String, String>> {
+private fun parseInput(): Pair<String, Map<String, String>> {
     val polymer = input.lines()[0]
     val rules = input.lines().drop(2).map { it.split(" -> ") }.associate { (a, b) -> a to b }
     return Pair(polymer, rules)
 }
 
-fun part1(polymer: String, rules: Map<String, String>) {
+private fun part1(polymer: String, rules: Map<String, String>) {
     val delta = applyRulesAndMaxMinDelta(polymer, 10, rules)
     println("Part 1: $delta")
 }
 
-fun part2(polymer: String, rules: Map<String, String>) {
+private fun part2(polymer: String, rules: Map<String, String>) {
     val delta = applyRulesAndMaxMinDelta(polymer, 40, rules)
     println("Part 2: $delta")
 }
@@ -48,6 +50,3 @@ private fun applyRulesAndMaxMinDelta(polymer: String, times: Int, rules: Map<Str
     return letterCounts.maxOf { it.value } - letterCounts.minOf { it.value }
 }
 
-fun <T> Grouping<Pair<T, Long>, T>.sumCounts(): Map<T, Long> {
-    return fold(0L) { total, count -> total + count.second }
-}

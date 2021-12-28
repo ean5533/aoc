@@ -1,7 +1,8 @@
 package day11
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day11")!!.readText()
+import lib.*
+
+private val input = loadResourceAsString("text/day11")
 
 
 fun main() {
@@ -9,12 +10,12 @@ fun main() {
     part2(parseInput())
 }
 
-fun parseInput(): MutableTopology {
+private fun parseInput(): MutableTopology {
     return input.lines()
         .flatMapIndexed { y, line ->
             line.mapIndexed { x, char ->
                 MutableOctopus(
-                    Coordinate(x, y),
+                    Point2D(x, y),
                     char.digitToInt()
                 )
             }
@@ -23,13 +24,13 @@ fun parseInput(): MutableTopology {
         .let(::MutableTopology)
 }
 
-fun part1(topology: MutableTopology) {
+private fun part1(topology: MutableTopology) {
     val flashes = (1..100).sumOf { topology.stepOnce() }
 
     println("Part 1: There were $flashes flashes")
 }
 
-fun part2(topology: MutableTopology) {
+private fun part2(topology: MutableTopology) {
     val numberOfOctoBuddies = topology.cells.size
     val firstAllFlash =
         generateSequence(1, Int::inc).takeWhile { topology.stepOnce() != numberOfOctoBuddies }.last() + 1
@@ -37,9 +38,7 @@ fun part2(topology: MutableTopology) {
     println("Part 2: They all flashed on generation $firstAllFlash")
 }
 
-data class MutableTopology(val cells: Map<Coordinate, MutableOctopus>) {
-    val adjacencyOffsets = (-1..1).cartesianProduct(-1..1).minus(0 to 0)
-
+private data class MutableTopology(override val cells: Map<Point2D, MutableOctopus>): Topology<MutableOctopus> {
     /**
      * Increases the energy of all octofriends by 1 and counts the number of flashes (including chains) that occur
      */
@@ -48,16 +47,11 @@ data class MutableTopology(val cells: Map<Coordinate, MutableOctopus>) {
         return cells.values.count { it.flashIfReady() }
     }
 
-    private fun getNeighborsOf(cell: MutableOctopus): List<MutableOctopus> {
-        return adjacencyOffsets
-            .mapNotNull { (x, y) -> cells[cell.location.copy(x = cell.location.x + x, y = cell.location.y + y)] }
-    }
-
-    private fun increaseEnergyOf(locations: Sequence<Coordinate>) {
+    private fun increaseEnergyOf(locations: Sequence<Point2D>) {
         val neighborsOfFlashes = locations
             .map { cells[it]!! }
             .filter { it.increaseEnergy() }
-            .flatMap { getNeighborsOf(it) }
+            .flatMap { get8NeighborsOf(it) }
             .map { it.location }
             .toList()
 
@@ -81,9 +75,7 @@ data class MutableTopology(val cells: Map<Coordinate, MutableOctopus>) {
     }
 }
 
-data class Coordinate(val x: Int, val y: Int)
-
-data class MutableOctopus(val location: Coordinate, private var energyLevel: Int) {
+private data class MutableOctopus(override val location: Point2D, private var energyLevel: Int): Cell {
     private val FLASH_LEVEL = 10
 
     fun energyLevel(): Int = energyLevel
@@ -105,6 +97,3 @@ data class MutableOctopus(val location: Coordinate, private var energyLevel: Int
         }
     }
 }
-
-fun <S, T> Iterable<S>.cartesianProduct(other: Iterable<T>) =
-    flatMap { first -> other.map { second -> first to second } }

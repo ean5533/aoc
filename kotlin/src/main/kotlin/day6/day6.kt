@@ -1,7 +1,8 @@
 package day6
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day6")!!.readText()
+import lib.loadResourceAsString
+
+private val input = loadResourceAsString("text/day6")
 
 // A mapping of TIME_UNTIL_SPAWN->NUMBER_OF_FISH
 typealias CountBySpawnTime = Map<Int, Long>
@@ -13,12 +14,12 @@ fun main() {
     calculateAndPrintSizeAfter(initialCounts, 256)
 }
 
-fun calculateAndPrintSizeAfter(initialCounts: CountBySpawnTime, days: Int) {
+private fun calculateAndPrintSizeAfter(initialCounts: CountBySpawnTime, days: Int) {
     val finalCounts = (0 until days).fold(initialCounts) { it, _ -> age1Day(it) }
     println("Fish after $days days ${finalCounts.values.sum()}")
 }
 
-fun age1Day(counts: CountBySpawnTime): CountBySpawnTime {
+private fun age1Day(counts: CountBySpawnTime): CountBySpawnTime {
     return mapOf(
         0 to counts.getOrDefault(1, 0),
         1 to counts.getOrDefault(2, 0),

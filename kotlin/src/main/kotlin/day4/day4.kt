@@ -1,9 +1,9 @@
 package day4
 
+import lib.loadResourceAsString
 import java.lang.IllegalArgumentException
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day4")!!.readText()
+private val input = loadResourceAsString("text/day4")
 
 fun main() {
     val (numbers, boards) = parseInput()
@@ -12,7 +12,7 @@ fun main() {
     part2(numbers, boards)
 }
 
-fun parseInput(): Pair<List<Int>, List<Board>> {
+private fun parseInput(): Pair<List<Int>, List<Board>> {
     val lines = input.lines()
     val numbers = lines[0].split(",").map(String::toInt)
 
@@ -24,7 +24,7 @@ fun parseInput(): Pair<List<Int>, List<Board>> {
     return Pair(numbers, boards)
 }
 
-fun part1(numbers: List<Int>, boards: List<Board>) {
+private fun part1(numbers: List<Int>, boards: List<Board>) {
     // Draw numbers until some board is solved
     val numberThatSolved = numbers.first { number ->
         boards.forEach { it.mark(number) }
@@ -37,7 +37,7 @@ fun part1(numbers: List<Int>, boards: List<Board>) {
     println("Solved board scores $solvedBoardScores")
 }
 
-fun part2(numbers: List<Int>, boards: List<Board>) {
+private fun part2(numbers: List<Int>, boards: List<Board>) {
     // First, draw numbers until there are one or fewer unsolved boards left
     val calledNumbers = numbers.takeWhile { number ->
         boards.filter { !it.isSolved() }.forEach { it.mark(number) }
@@ -58,7 +58,7 @@ fun part2(numbers: List<Int>, boards: List<Board>) {
 
 }
 
-data class Board(val numbers: List<List<Cell>>) {
+private data class Board(val numbers: List<List<Cell>>) {
     private var isSolved = false
 
     fun mark(number: Int): Board {
@@ -97,7 +97,7 @@ data class Board(val numbers: List<List<Cell>>) {
     }
 }
 
-data class Cell(val number: Int) {
+private data class Cell(val number: Int) {
     private var isMarked: Boolean = false
 
     fun mark() {

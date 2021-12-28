@@ -1,8 +1,7 @@
 package day23
 
-import day21.printTimeTaken
+import lib.*
 import java.lang.Math.abs
-import java.util.*
 
 //val input = """
 //#############
@@ -28,14 +27,14 @@ val insert = """
 fun main() {
     printTimeTaken {
         val solution = solve(parse(input))
-        val cost = solution.moves.sumOf { it.cost }
+        val cost = solution.cost
         println("Part 1: $cost")
     }
 
     printTimeTaken {
         val newInput = insert(insert, input)
         val solution = solve(parse(newInput))
-        val cost = solution.moves.sumOf { it.cost }
+        val cost = solution.cost
         println("Part 2: $cost")
     }
 }
@@ -57,35 +56,21 @@ private fun parse(input: String): Building {
     return Building(aNodes, bNodes, cNodes, dNodes)
 }
 
-fun insert(toInsert: String, original: String): String =
+private fun insert(toInsert: String, original: String): String =
     (original.lines().take(3) + toInsert.lines() + original.lines().drop(3)).joinToString("\n")
 
-fun solve(building: Building): State {
-    val initialState = State(building, listOf())
-    val queue = PriorityQueue<State>(compareBy({ it.cost })).also { it.add(initialState) }
-    val seenBuildingsToLowestCost = mutableMapOf(initialState.building to 0)
+private fun solve(building: Building): lib.SearchState<Building> {
+    class SearchState(current: Building, override val cost: Int): lib.SearchState<Building>(current) {
+        override fun isSolution(): Boolean = current.allHome()
 
-    while (queue.isNotEmpty()) {
-        val state = queue.remove()
-        if (state.isSolved()) {
-            return state
-        }
-
-        val nextStates = state.getNextPossibleStates()
-
-        nextStates
-            // Only keep searching if we have found a cheaper path to a previously found state
-            .filter { nextState -> seenBuildingsToLowestCost[nextState.building]?.let { nextState.cost < it } ?: true }
-            .forEach {
-                queue.add(it)
-                seenBuildingsToLowestCost[it.building] = it.cost
-            }
+        override fun getNextStates(): List<SearchState> =
+            current.getNextStates().map { SearchState(it.first, cost + it.second) }
     }
 
-    throw IllegalStateException("Could not find a solution")
+    return aStarSearch(SearchState(building, 0)) ?: throw IllegalStateException("Could not find a solution")
 }
 
-data class Building(val spaces: List<Space>) {
+private data class Building(val spaces: List<Space>) {
     constructor(aNodes: List<Node>, bNodes: List<Node>, cNodes: List<Node>, dNodes: List<Node>) : this(
         listOf(
             HallSpace("OuterLeftHall", Node()),
@@ -118,18 +103,29 @@ data class Building(val spaces: List<Space>) {
                 .filter { (source, destination) -> source is Room || destination is Room }
         }
 
-    fun traverseSteps(source: Space, destination: Space): Int {
+    fun allHome(): Boolean = rooms.all { (_, nodes, allowedAmphipod) -> nodes.all { it.contents == allowedAmphipod } }
+
+    fun getNextStates(): List<Pair<Building, Int>> {
+        return traverseableSpaces.mapNotNull { (source, destination) ->
+            source.popOrNull()?.let { (amphipod, newSource) ->
+                destination.pushOrNull(amphipod)?.let { newDestination ->
+                    val stepsTaken = traverseSteps(source, destination)
+                    updateRooms(listOf(newSource, newDestination)) to stepsTaken * amphipod.cost
+                }
+            }
+        }
+    }
+
+    private fun traverseSteps(source: Space, destination: Space): Int {
         val spacesCrossed = abs(spaces.indexOf(source) - spaces.indexOf(destination)) - 1
         return source.traverseSteps() + spacesCrossed + destination.traverseSteps()
     }
 
-    fun updateWith(updatedSpaces: List<Space>): Building {
+    private fun updateRooms(updatedSpaces: List<Space>): Building {
         return roomMap.toMutableMap()
             .also { map -> updatedSpaces.forEach { map[it.name] = it } }
             .let { Building(it.values.toList()) }
     }
-
-    fun allHome(): Boolean = rooms.all { (_, nodes, allowedAmphipod) -> nodes.all { it.contents == allowedAmphipod } }
 
     override fun toString(): String {
         val roomLines = (0 until rooms[0].nodes.size).joinToString("") {
@@ -145,10 +141,9 @@ data class Building(val spaces: List<Space>) {
                 roomLines +
                 "  #########"
     }
-
 }
 
-interface Space {
+private interface Space {
     val name: String
     fun canTraverse(): Boolean
     fun traverseSteps(): Int
@@ -156,7 +151,7 @@ interface Space {
     fun pushOrNull(amphipod: Amphipod): Space?
 }
 
-data class HallSpace(override val name: String, val node: Node) : Space {
+private data class HallSpace(override val name: String, val node: Node) : Space {
     override fun canTraverse(): Boolean = node.isEmpty()
 
     override fun traverseSteps(): Int = if (node.isEmpty()) 1 else 0
@@ -166,7 +161,7 @@ data class HallSpace(override val name: String, val node: Node) : Space {
     override fun pushOrNull(amphipod: Amphipod): Space? = if (node.isEmpty()) copy(node = Node(amphipod)) else null
 }
 
-data class Room(
+private data class Room(
     override val name: String,
     val nodes: List<Node>,
     val allowedAmphipod: Amphipod,
@@ -203,36 +198,11 @@ data class Room(
 }
 
 // TODO: could flyweight this for better perf
-data class Node(val contents: Amphipod? = null) {
+private data class Node(val contents: Amphipod? = null) {
     fun isEmpty(): Boolean = contents == null
     fun isNotEmpty(): Boolean = !isEmpty()
 
     override fun toString(): String = contents?.toString() ?: "."
 }
 
-enum class Amphipod(val cost: Int) { A(1), B(10), C(100), D(1000) }
-
-data class Move(val cost: Int, val description: String) {
-    constructor(cost: Int, source: Space, destination: Space) : this(cost, "${source.name} to ${destination.name}")
-}
-
-data class State(val building: Building, val moves: List<Move>) {
-    fun isSolved(): Boolean = building.allHome()
-
-    val cost: Int = moves.sumOf { it.cost }
-
-    fun getNextPossibleStates(): List<State> {
-        val traverseableRooms = building.traverseableSpaces
-        return traverseableRooms.mapNotNull { (source, destination) ->
-            source.popOrNull()?.let { (amphipod, newSource) ->
-                destination.pushOrNull(amphipod)?.let { newDestination ->
-                    val stepsTaken = building.traverseSteps(source, destination)
-                    State(
-                        building.updateWith(listOf(newSource, newDestination)),
-                        moves + Move(stepsTaken * amphipod.cost, source, destination)
-                    )
-                }
-            }
-        }
-    }
-}
+private enum class Amphipod(val cost: Int) { A(1), B(10), C(100), D(1000) }

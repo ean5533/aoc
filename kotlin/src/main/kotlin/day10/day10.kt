@@ -1,9 +1,12 @@
 package day10
 
+import lib.loadResourceAsString
+import lib.peek
+import lib.pop
+import lib.push
 import kotlin.collections.ArrayDeque
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day10")!!.readText()
+private val input = loadResourceAsString("text/day10")
 
 private val openToClose = mapOf(
     '(' to ')',
@@ -31,7 +34,7 @@ fun main() {
     part2()
 }
 
-fun part1() {
+private fun part1() {
     val corruptionScore = input.lines().map(::analyze)
         .mapNotNull { it.invalidPart.firstOrNull() }
         .sumOf { corruptionPoints[it]!! }
@@ -39,7 +42,7 @@ fun part1() {
     println("Part 1: corruption score $corruptionScore")
 }
 
-fun part2() {
+private fun part2() {
     val completionScores = input.lines().map(::analyze)
         .filter { it.invalidPart.isEmpty() }
         .map { it.closersNeededToBalance }
@@ -51,7 +54,7 @@ fun part2() {
     println("Part 2: middle completion score $middleScore")
 }
 
-fun toCompletionScore(it: String): Long {
+private fun toCompletionScore(it: String): Long {
     return it.fold(0L) { total, nextChar ->
         total * 5 + completionPoints[nextChar]!!
     }
@@ -82,8 +85,4 @@ private fun analyze(line: String): Analysis {
     return Analysis(validPart, invalidPart, closersExpected.asReversed().joinToString(""))
 }
 
-data class Analysis(val validPart: String, val invalidPart: String, val closersNeededToBalance: String)
-
-fun <T> ArrayDeque<T>.push(element: T): Unit = addLast(element)
-fun <T> ArrayDeque<T>.pop(): T? = removeLastOrNull()
-fun <T> ArrayDeque<T>.peek(): T? = lastOrNull()
+private data class Analysis(val validPart: String, val invalidPart: String, val closersNeededToBalance: String)

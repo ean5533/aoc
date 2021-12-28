@@ -1,7 +1,9 @@
 package day13
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day13")!!.readText()
+import lib.Point2D
+import lib.loadResourceAsString
+
+private val input = loadResourceAsString("text/day13")
 
 
 fun main() {
@@ -11,11 +13,11 @@ fun main() {
     part2(paper, foldInstructions)
 }
 
-fun parseInput(): Pair<Paper, List<FoldInstruction>> {
+private fun parseInput(): Pair<Paper, List<FoldInstruction>> {
     val dots = input.lines()
         .takeWhile { it.isNotEmpty() }
         .map { it.split(",").map { it.toInt() } }
-        .map { (x, y) -> Coordinate(x, y) }
+        .map { (x, y) -> Point2D(x, y) }
         .toSet()
     val foldInstructions = input.lines()
         .dropWhile { it.isNotEmpty() }
@@ -25,12 +27,12 @@ fun parseInput(): Pair<Paper, List<FoldInstruction>> {
     return Pair(Paper(dots), foldInstructions)
 }
 
-fun part1(paper: Paper, foldInstructions: List<FoldInstruction>) {
+private fun part1(paper: Paper, foldInstructions: List<FoldInstruction>) {
     val foldedPaper = foldPaper(paper, foldInstructions.take(1))
     println("Part 1: ${foldedPaper.dots.size} dots visible")
 }
 
-fun part2(paper: Paper, foldInstructions: List<FoldInstruction>) {
+private fun part2(paper: Paper, foldInstructions: List<FoldInstruction>) {
     val foldedPaper = foldPaper(paper, foldInstructions)
     println("Part 2: Final folded paper looks like:\n${foldedPaper.toStringGrid()}")
 }
@@ -50,9 +52,9 @@ private fun foldPaper(originalPaper: Paper, foldInstructions: List<FoldInstructi
     return foldedPaper
 }
 
-fun reflect(value: Int, over: Int): Int = over * 2 - value
+private fun reflect(value: Int, over: Int): Int = over * 2 - value
 
-data class Paper(val dots: Set<Coordinate>) {
+private data class Paper(val dots: Set<Point2D>) {
     fun toStringGrid(): String {
         val height = dots.maxOf { it.y } + 1
         val width = dots.maxOf { it.x } + 1
@@ -63,11 +65,9 @@ data class Paper(val dots: Set<Coordinate>) {
     }
 }
 
-data class Coordinate(val x: Int, val y: Int)
+private data class FoldInstruction(val direction: FoldDirection, val location: Int)
 
-data class FoldInstruction(val direction: FoldDirection, val location: Int)
-
-enum class FoldDirection {
+private enum class FoldDirection {
     UP, LEFT;
 
     companion object {

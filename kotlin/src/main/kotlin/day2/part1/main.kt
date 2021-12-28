@@ -1,9 +1,9 @@
 package day2.part1
 
+import lib.loadResourceAsString
 import java.lang.RuntimeException
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day2")!!.readText()
+private val input = loadResourceAsString("text/day2")
 private val commands: List<Command> = input.lines().map(Command.Companion::parse)
 
 fun main() {

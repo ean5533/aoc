@@ -1,32 +1,31 @@
 package day19
 
-import day11.cartesianProduct
-import java.lang.Math.abs
-import kotlin.system.measureTimeMillis
+import lib.Point3D
+import lib.cartesianProduct
+import lib.loadResourceAsString
+import lib.printTimeTaken
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day19")!!.readText()
+private val input = loadResourceAsString("text/day19")
 
 fun main() {
     // Scanners with more beacons are more likely to overlap with each other
     val scanners = parseInput().sortedByDescending { it.beaconOffsets.size }
 
-    val time = measureTimeMillis {
+    printTimeTaken {
         val reorientedScanners = moveScannersToOrigin(scanners)
 
         part1(reorientedScanners)
         part2(reorientedScanners)
     }
-    println("(evaluation after parsing took $time ms)")
 }
 
-fun parseInput(): List<Scanner> {
+private fun parseInput(): List<Scanner> {
     val iterator = input.lines().iterator()
     return generateSequence { }.takeWhile { iterator.hasNext() }.map {
         val name = iterator.next().split(" ")[2]
         val beaconOffsets = iterator.asSequence().takeWhile { it.isNotEmpty() }.map {
             val (x, y, z) = it.split(",").map { it.toInt() }
-            Offset(x, y, z)
+            Point3D(x, y, z)
         }
         Scanner(name, beaconOffsets.toList())
     }.toList()
@@ -40,7 +39,7 @@ private fun part1(movedScanners: List<MovedScanner>) {
 private fun part2(movedScanners: List<MovedScanner>) {
     val originalLocations = movedScanners.map { it.movedBy }
     val maxDistance = originalLocations.cartesianProduct(originalLocations)
-        .maxOf { (a, b) -> a.distanceTo(b).manhattanDistance() }
+        .maxOf { (a, b) -> a.distanceTo(b).manhattanDistanceTo() }
     System.out.println("Part 2: $maxDistance")
 }
 
@@ -49,7 +48,7 @@ private fun moveScannersToOrigin(scanners: List<Scanner>): List<MovedScanner> {
     val sortedScanners = scanners.sortedByDescending { it.beaconOffsets.size }
 
     // Assume the first scanner is oriented to the origin and then start progressively re-orienting and moving other scanners
-    val movedScanners = mutableListOf(MovedScanner(sortedScanners[0], Offset(0, 0, 0)))
+    val movedScanners = mutableListOf(MovedScanner(sortedScanners[0], Point3D(0, 0, 0)))
     val unmovedScanners = sortedScanners.drop(1).toMutableList()
 
     // Loop over each unmoved scanner, generating all of its possible reorientations and looking for one that
@@ -79,40 +78,32 @@ private fun moveScannersToOrigin(scanners: List<Scanner>): List<MovedScanner> {
     return movedScanners.toList()
 }
 
-data class Offset(val x: Int, val y: Int, val z: Int) {
-    fun distanceTo(other: Offset): Offset = Offset(x - other.x, y - other.y, z - other.z)
-
-    fun move(amount: Offset): Offset = Offset(x + amount.x, y + amount.y, z + amount.z)
-
-    fun manhattanDistance(): Int = abs(x) + abs(y) + abs(z)
-}
-
-data class Scanner(val name: String, val beaconOffsets: List<Offset>) {
+private data class Scanner(val name: String, val beaconOffsets: List<Point3D>) {
     fun generateReorientations(): List<Scanner> =
         reorientationFunctions.map { func -> Scanner(name, beaconOffsets.map { func(it) }) }
 
-    fun move(amount: Offset): Scanner = Scanner(name, beaconOffsets.map { it.move(amount) })
+    fun move(amount: Point3D): Scanner = Scanner(name, beaconOffsets.map { it.move(amount) })
 
     companion object {
         // I think about this as a cube: for each of six faces, rotate in four directions
-        val faceSelects = listOf<(Offset) -> Offset>(
-            { Offset(it.x, it.y, it.z) },
-            { Offset(it.z, it.y, -it.x) },
-            { Offset(-it.x, it.y, -it.z) },
-            { Offset(-it.z, it.y, it.x) },
-            { Offset(it.x, it.z, -it.y) },
-            { Offset(it.x, -it.z, it.y) },
+        val faceSelects = listOf<(Point3D) -> Point3D>(
+            { Point3D(it.x, it.y, it.z) },
+            { Point3D(it.z, it.y, -it.x) },
+            { Point3D(-it.x, it.y, -it.z) },
+            { Point3D(-it.z, it.y, it.x) },
+            { Point3D(it.x, it.z, -it.y) },
+            { Point3D(it.x, -it.z, it.y) },
         )
-        val rotations = listOf<(Offset) -> Offset>(
-            { Offset(it.x, it.y, it.z) },
-            { Offset(-it.y, it.x, it.z) },
-            { Offset(-it.x, -it.y, it.z) },
-            { Offset(it.y, -it.x, it.z) },
+        val rotations = listOf<(Point3D) -> Point3D>(
+            { Point3D(it.x, it.y, it.z) },
+            { Point3D(-it.y, it.x, it.z) },
+            { Point3D(-it.x, -it.y, it.z) },
+            { Point3D(it.y, -it.x, it.z) },
         )
 
         // Curry all 6*4=24 function pairs
         val reorientationFunctions =
-            faceSelects.cartesianProduct(rotations).map { (a, b) -> ({ it: Offset -> a(b(it)) }) }
+            faceSelects.cartesianProduct(rotations).map { (a, b) -> ({ it: Point3D -> a(b(it)) }) }
     }
 }
 
@@ -120,4 +111,4 @@ data class Scanner(val name: String, val beaconOffsets: List<Offset>) {
  * A scanner that has been reoriented and relocated to be at the same orientation and location as the origin, with all
  * of its beacon offsets recalculated accordingly.
  */
-data class MovedScanner(val scanner: Scanner, val movedBy: Offset)
+private data class MovedScanner(val scanner: Scanner, val movedBy: Point3D)

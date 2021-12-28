@@ -1,7 +1,9 @@
 package day3
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day3")!!.readText()
+import lib.loadResourceAsString
+
+
+private val input = loadResourceAsString("text/day3")
 private val allBits: List<List<Int>> = input.lines().map { it.trim().toList().map(Char::digitToInt) }
 private val columns = allBits[0].size
 
@@ -10,7 +12,7 @@ fun main() {
     part2()
 }
 
-fun part1() {
+private fun part1() {
     fun selectOneBitPerColumn(bits: List<List<Int>>, bitSelector: (List<List<Int>>, Int) -> Int): List<Int> {
         return (0 until columns).map { bitSelector(bits, it) }
     }
@@ -23,7 +25,7 @@ fun part1() {
     println("gamma=[$gamma], epsilon=[$epsilon], power=[$power]")
 }
 
-fun part2() {
+private fun part2() {
     val oxygenGeneratorRating = reduceToSingleRow(allBits, 0, ::getCommonBit).bitsToDecimal()
     val co2ScrubberRating = reduceToSingleRow(allBits, 0, ::getUncommonBit).bitsToDecimal()
 

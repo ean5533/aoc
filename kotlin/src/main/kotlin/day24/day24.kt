@@ -40,7 +40,7 @@ fun main() {
     println(isValidModelNumber(11118151637112, instructions))
 }
 
-fun analyze(instructionSet: List<Instruction>, index: Int): AnalyzedInstructionSet {
+private fun analyze(instructionSet: List<Instruction>, index: Int): AnalyzedInstructionSet {
     return AnalyzedInstructionSet(
         index,
         ((instructionSet[4] as Divide).parameter as Literal).value,
@@ -82,66 +82,66 @@ private fun parseInput() = input.lines().map {
     }
 }
 
-sealed interface Instruction {
+private sealed interface Instruction {
     fun execute(state: State)
 }
 
-data class Input(val variableRef: VariableRef) : Instruction {
+private data class Input(val variableRef: VariableRef) : Instruction {
     override fun execute(state: State) {
         state.variables[variableRef.name] = state.inputs.next()
     }
 }
 
-data class Add(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
+private data class Add(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
     override fun execute(state: State) {
         state.variables[variableRef.name] = state.variables[variableRef.name]!! + parameter.getValue(state)
     }
 }
 
-data class Multiply(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
+private data class Multiply(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
     override fun execute(state: State) {
         state.variables[variableRef.name] = state.variables[variableRef.name]!! * parameter.getValue(state)
     }
 }
 
-data class Divide(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
+private data class Divide(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
     override fun execute(state: State) {
         state.variables[variableRef.name] =
             (state.variables[variableRef.name]!!.toDouble() / parameter.getValue(state)).toInt()
     }
 }
 
-data class Modulo(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
+private data class Modulo(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
     override fun execute(state: State) {
         state.variables[variableRef.name] = state.variables[variableRef.name]!! % parameter.getValue(state)
     }
 }
 
-data class Equals(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
+private data class Equals(val variableRef: VariableRef, val parameter: Parameter) : Instruction {
     override fun execute(state: State) {
         state.variables[variableRef.name] =
             if (state.variables[variableRef.name]!! == parameter.getValue(state)) 1 else 0
     }
 }
 
-sealed interface Parameter {
+private sealed interface Parameter {
     fun getValue(state: State): Int
 }
 
-data class VariableRef(val name: String) : Parameter {
+private data class VariableRef(val name: String) : Parameter {
     override fun getValue(state: State): Int = state.variables[name]!!
 }
 
-data class Literal(val value: Int) : Parameter {
+private data class Literal(val value: Int) : Parameter {
     override fun getValue(state: State): Int = value
 }
 
-class State(
+private class State(
     val inputs: Iterator<Int>,
     val variables: MutableMap<String, Int> = mutableMapOf("w" to 0, "x" to 0, "y" to 0, "z" to 0)
 )
 
-data class AnalyzedInstructionSet(val index: Int, val div: Int, val check: Int, val offset: Int) {
+private data class AnalyzedInstructionSet(val index: Int, val div: Int, val check: Int, val offset: Int) {
     override fun toString(): String {
         val desc = if (check > 0)
             "PUSH input[$index] + $offset"

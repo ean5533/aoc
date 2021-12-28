@@ -1,10 +1,11 @@
 package day25
 
-import day21.printTimeTaken
+import lib.printTimeTaken
+import lib.Point2D
+import lib.loadResourceAsString
 
 
-private val classLoader: ClassLoader = object {}.javaClass.classLoader
-private val input = classLoader.getResource("text/day25")!!.readText()
+private val input = loadResourceAsString("text/day25")
 
 fun main() {
     val topology = parseInput()
@@ -29,7 +30,7 @@ private fun parseInput(): Topology {
                 '>' -> CukeDirection.RIGHT
                 'v' -> CukeDirection.DOWN
                 else -> null
-            }?.let { Coordinate(col, row) to it }
+            }?.let { Point2D(col, row) to it }
 
         }
     }
@@ -37,13 +38,11 @@ private fun parseInput(): Topology {
         .let { (rights, downs) -> Topology(rights.toMap(), downs.toMap(), width, height) }
 }
 
-data class Coordinate(val x: Int, val y: Int)
+private enum class CukeDirection { RIGHT, DOWN }
 
-enum class CukeDirection { RIGHT, DOWN }
-
-data class Topology(
-    val rights: Map<Coordinate, CukeDirection>,
-    val downs: Map<Coordinate, CukeDirection>,
+private data class Topology(
+    val rights: Map<Point2D, CukeDirection>,
+    val downs: Map<Point2D, CukeDirection>,
     val width: Int,
     val height: Int
 ) {
@@ -63,12 +62,12 @@ data class Topology(
         })
     }
 
-    private fun isEmpty(coordinate: Coordinate): Boolean = rights[coordinate] == null && downs[coordinate] == null
+    private fun isEmpty(point: Point2D): Boolean = rights[point] == null && downs[point] == null
 
     override fun toString(): String {
         return (0 until height).joinToString("\n") { row ->
             (0 until width).joinToString("") { col ->
-                when (Coordinate(col, row)) {
+                when (Point2D(col, row)) {
                     in rights -> ">"
                     in downs -> "V"
                     else -> "."
