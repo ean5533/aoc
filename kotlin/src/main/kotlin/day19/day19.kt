@@ -21,8 +21,8 @@ fun main() {
 
 private fun parseInput(): List<Scanner> {
     val iterator = input.lines().iterator()
-    return generateSequence { }.takeWhile { iterator.hasNext() }.map {
-        val name = iterator.next().split(" ")[2]
+    return iterator.asSequence().map {
+        val name = it.split(" ")[2]
         val beaconOffsets = iterator.asSequence().takeWhile { it.isNotEmpty() }.map {
             val (x, y, z) = it.split(",").map { it.toInt() }
             Point3D(x, y, z)
