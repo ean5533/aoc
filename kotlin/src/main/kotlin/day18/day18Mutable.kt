@@ -1,6 +1,7 @@
 package day18
 
 import lib.cartesianProduct
+import lib.checkEquals
 import lib.loadResourceAsString
 
 private val input = loadResourceAsString("text/day18")
@@ -46,9 +47,9 @@ object day18Mutable {
             LiteralSnailfish(next.digitToInt())
         } else {
             val left = parseSnailfish(iterator)
-            check(iterator.next() == ',')
+            checkEquals(iterator.next(), ',')
             val right = parseSnailfish(iterator)
-            check(iterator.next() == ']')
+            checkEquals(iterator.next(), ']')
 
             PairSnailfish(left, right)
         }

@@ -59,3 +59,5 @@ fun <T> List<Set<T>>.intersectAll(): Set<T> {
 fun <T> ArrayDeque<T>.push(element: T): Unit = addLast(element)
 fun <T> ArrayDeque<T>.pop(): T? = removeLastOrNull()
 fun <T> ArrayDeque<T>.peek(): T? = lastOrNull()
+
+fun <T> Sequence<T>.repeat() = sequence { while (true) yieldAll(this@repeat) }
