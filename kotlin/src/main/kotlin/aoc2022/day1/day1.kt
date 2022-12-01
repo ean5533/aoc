@@ -1,9 +1,10 @@
 package aoc2022.day1
 
 import lib.loadResourceAsString
+import lib.split
 
 private val input = loadResourceAsString("text/aoc2022/day1")
-private val calorieLists = input.split("\n\n").map { it.split("\n").mapNotNull { it.toIntOrNull() } }
+private val calorieLists = input.lines().split("").map { it.map { it.toInt() } }
 private val sortedSums = calorieLists.map { it.sum() }.toList().sortedDescending()
 
 fun main() {

@@ -56,6 +56,14 @@ fun <T> List<Set<T>>.intersectAll(): Set<T> {
     return reduce { prev, next -> prev.intersect(next) }
 }
 
+fun <T> List<T>.split(delimiter: T): List<List<T>> {
+    val iterator = iterator()
+    return generateSequence {}.takeWhile { iterator.hasNext() }.map {
+        iterator.asSequence().takeWhile { it != delimiter }.toList()
+    }.toList()
+}
+
+
 fun <T> ArrayDeque<T>.push(element: T): Unit = addLast(element)
 fun <T> ArrayDeque<T>.pop(): T? = removeLastOrNull()
 fun <T> ArrayDeque<T>.peek(): T? = lastOrNull()
