@@ -25,6 +25,20 @@ inline fun <T> Sequence<T>.takeWhileInclusive(predicate: (T) -> Boolean): List<T
 }
 
 /**
+ * Returns true if this range fully encompasses [other]
+ */
+fun IntRange.containsAll(other: IntRange): Boolean =
+    this.start <= other.start && this.endInclusive >= other.endInclusive
+
+/**
+ * Returns true if this range overlaps with [other], either partially, or if either fully contains the other
+ */
+fun IntRange.containsAny(other: IntRange): Boolean =
+    this.contains(other.start) || // this contains at least the beginning of [other]
+        this.contains(other.endInclusive) || // this contains at least the end of [other]
+        other.containsAll(this)
+
+/**
  * Returns the portion of this range is is contained in [other], as well as the remaining portions of the range
  * that were not contained in [other]
  */
@@ -52,6 +66,7 @@ fun IntRange.extractSlice(other: IntRange): Pair<IntRange?, List<IntRange>> {
 fun <T> Iterator<T>.next(num: Int): List<T> {
     return (0 until num).map { next() }
 }
+
 fun <T> List<Set<T>>.intersectAll(): Set<T> {
     return reduce { prev, next -> prev.intersect(next) }
 }
@@ -69,3 +84,5 @@ fun <T> ArrayDeque<T>.pop(): T? = removeLastOrNull()
 fun <T> ArrayDeque<T>.peek(): T? = lastOrNull()
 
 fun <T> Sequence<T>.repeat() = sequence { while (true) yieldAll(this@repeat) }
+
+fun <T> List<T>.pair() = this[0] to this[1]

@@ -3,7 +3,7 @@ package aoc2022.day2
 import lib.incrementInsideRange
 import lib.loadResourceAsString
 
-private val input = loadResourceAsString("text/aoc2022/day2")
+private val input = loadResourceAsString("text/aoc2022/day2").trim()
 
 private const val ROCK = 1
 private const val PAPER = 2
