@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package lib
 
 fun <S, T> Iterable<S>.cartesianProduct(other: Iterable<T>) =
@@ -86,3 +88,20 @@ fun <T> ArrayDeque<T>.peek(): T? = lastOrNull()
 fun <T> Sequence<T>.repeat() = sequence { while (true) yieldAll(this@repeat) }
 
 fun <T> List<T>.pair() = this[0] to this[1]
+
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    val new = mutableListOf<MutableList<T>>()
+    
+    (0 until this[0].size).forEach { colNum ->
+        val col = mutableListOf<T>().also { new.add(it) }
+        this.forEach { row -> 
+            col.add(row[colNum])
+        }
+    }
+    
+    return new
+}
+
+fun <T> List<List<T>>.rotate90(): List<List<T>> {
+    return this.transpose().map { it.reversed() }
+}

@@ -1,6 +1,7 @@
 package aoc2022.day5
 
 import lib.loadResourceAsString
+import lib.transpose
 
 private val input = loadResourceAsString("text/aoc2022/day5").lines()
 
@@ -21,25 +22,26 @@ private fun part2(warehouse: Warehouse, moves: List<Move>) {
 }
 
 private fun parseInput(): Pair<Warehouse, List<Move>> {
-    val stackCount = input.single { it.startsWith(" 1") }.split("   ").count()
-    val stackLines = input.takeWhile { it.contains('[') }
-    val stacks = (0 until stackCount).map { stackNum ->
-        (0 until stackLines.count()).map { input[it][1 + stackNum * 4] }.filterNot { it == ' ' }
-    }
+    val stackCount = input.first { it.startsWith(" 1") }.split("   ").count()
+    val stacks = input.takeWhile { it.contains('[') }
+        .map { line -> (0 until stackCount).map { line[1 + it * 4] } }
+        .transpose()
+        .map { it.filterNot { it == ' ' } }
     val warehouse = Warehouse(stacks)
 
-    val moves = input.drop(stackLines.count() + 2).takeWhile { it.startsWith("move") }.map {
-        val pieces = it.split(' ')
-        Move(pieces[1].toInt(), pieces[3].toInt(), pieces[5].toInt())
-    }
-    
+    val moves = input.filter { it.startsWith("move") }
+        .map {
+            val pieces = it.split(' ')
+            Move(pieces[1].toInt(), pieces[3].toInt(), pieces[5].toInt())
+        }
+
     return warehouse to moves
 }
 
 data class Warehouse(val stacks: List<List<Char>>) {
-    fun move(moves: Iterable<Move>, crane: Crane) : Warehouse =
+    fun move(moves: Iterable<Move>, crane: Crane): Warehouse =
         moves.fold(this) { warehouse, move -> warehouse.move(move, crane) }
-    
+
     fun move(move: Move, crane: Crane): Warehouse {
         val (newFrom, newTo) = crane.move(stacks[move.from - 1], stacks[move.to - 1], move.amount)
         val newStacks = stacks.mapIndexed { index, stack ->
