@@ -27,6 +27,13 @@ inline fun <T> Sequence<T>.takeWhileInclusive(predicate: (T) -> Boolean): List<T
 }
 
 /**
+ * Like takeWhile, but also includes the first element that didn't satisfy the condition
+ */
+inline fun <T> List<T>.takeWhileInclusive(predicate: (T) -> Boolean): List<T> {
+    return asSequence().takeWhileInclusive(predicate)
+}
+
+/**
  * Returns true if this range fully encompasses [other]
  */
 fun IntRange.containsAll(other: IntRange): Boolean =
@@ -91,14 +98,12 @@ fun <T> List<T>.pair() = this[0] to this[1]
 
 fun <T> List<List<T>>.transpose(): List<List<T>> {
     val new = mutableListOf<MutableList<T>>()
-    
+
     (0 until this[0].size).forEach { colNum ->
         val col = mutableListOf<T>().also { new.add(it) }
-        this.forEach { row -> 
-            col.add(row[colNum])
-        }
+        this.forEach { row -> col.add(row[colNum]) }
     }
-    
+
     return new
 }
 
