@@ -110,3 +110,10 @@ fun <T> List<List<T>>.transpose(): List<List<T>> {
 fun <T> List<List<T>>.rotate90(): List<List<T>> {
     return this.transpose().map { it.reversed() }
 }
+
+fun <T> List<T>.replaceFirst(new: T): List<T> = ArrayList<T>(this.size).also { 
+    it.add(new)
+    it.addAll(drop(1))
+}
+
+fun <T> List<T>.replaceFirst(transform: (T) -> T): List<T> = replaceFirst(transform(first()))

@@ -5,12 +5,15 @@ import lib.loadResourceAsString
 private val input = loadResourceAsString("text/aoc2022/day9").trim()
 private val moves = input.lines().map { it.split(" ").let { Move(it[0], it[1].toInt()) } }
 
+/**
+ * A solution using mutable data structures
+ */
 fun main() {
-    println(Board(2).also { it.execute(moves) }.tailVisitedCount)
-    println(Board(10).also { it.execute(moves) }.tailVisitedCount)
+    println(MutableBoard(2).also { it.execute(moves) }.tailVisitedCount)
+    println(MutableBoard(10).also { it.execute(moves) }.tailVisitedCount)
 }
 
-private class Board(knotCount: Int) {
+private class MutableBoard(knotCount: Int) {
     private val positions: MutableList<Pair<Int, Int>> = (0 until knotCount).map { 0 to 0 }.toMutableList()
     private val tailVisitedPositions: MutableSet<Pair<Int, Int>> = mutableSetOf(0 to 0)
 
@@ -36,15 +39,5 @@ private class Board(knotCount: Int) {
         if (lead.second - this.second < 0) new = new.copy(second = this.second - 1)
 
         return new
-    }
-}
-
-private data class Move(val direction: String, val distance: Int) {
-    fun applyTo(pair: Pair<Int, Int>): Pair<Int, Int> = when (direction) {
-        "R" -> pair.copy(first = pair.first + 1)
-        "L" -> pair.copy(first = pair.first - 1)
-        "U" -> pair.copy(second = pair.second + 1)
-        "D" -> pair.copy(second = pair.second - 1)
-        else -> throw IllegalStateException()
     }
 }
