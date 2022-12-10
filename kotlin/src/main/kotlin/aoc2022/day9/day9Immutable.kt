@@ -31,16 +31,13 @@ private data class Board(
         Board(newPositions, board.tailVisitedPositions + newPositions.last())
     }//.also { println("After ${move.direction} ${move.distance}:  ${it.positions}, ${it.tailVisitedPositions}") }
 
-    private fun Pair<Int, Int>.moveToFollow(lead: Pair<Int, Int>): Pair<Int, Int> {
-        if (Math.abs(lead.first - this.first) <= 1 && Math.abs(lead.second - this.second) <= 1) return this
+    private fun Pair<Int, Int>.moveToFollow(leader: Pair<Int, Int>): Pair<Int, Int> {
+        if (Math.abs(leader.first - this.first) <= 1 && Math.abs(leader.second - this.second) <= 1) return this
 
-        var new = this
-        if (lead.first - this.first > 0) new = new.copy(first = this.first + 1)
-        if (lead.first - this.first < 0) new = new.copy(first = this.first - 1)
-        if (lead.second - this.second > 0) new = new.copy(second = this.second + 1)
-        if (lead.second - this.second < 0) new = new.copy(second = this.second - 1)
-
-        return new
+        return this.copy(
+            first = this.first + leader.first.compareTo(this.first),
+            second = this.second + leader.second.compareTo(this.second),
+        )
     }
 }
 
