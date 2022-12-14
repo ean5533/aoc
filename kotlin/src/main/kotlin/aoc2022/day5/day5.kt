@@ -38,7 +38,7 @@ private fun parseInput(): Pair<Warehouse, List<Move>> {
     return warehouse to moves
 }
 
-data class Warehouse(val stacks: List<List<Char>>) {
+private data class Warehouse(val stacks: List<List<Char>>) {
     fun move(moves: Iterable<Move>, crane: Crane): Warehouse =
         moves.fold(this) { warehouse, move -> warehouse.move(move, crane) }
 
@@ -55,18 +55,18 @@ data class Warehouse(val stacks: List<List<Char>>) {
     }
 }
 
-data class Move(val amount: Int, val from: Int, val to: Int)
+private data class Move(val amount: Int, val from: Int, val to: Int)
 
-interface Crane {
+private interface Crane {
     fun move(from: List<Char>, to: List<Char>, amount: Int): Pair<List<Char>, List<Char>>
 }
 
-object CrateMover9000 : Crane {
+private object CrateMover9000 : Crane {
     override fun move(from: List<Char>, to: List<Char>, amount: Int): Pair<List<Char>, List<Char>> =
         from.drop(amount) to (from.take(amount).reversed() + to)
 }
 
-object CrateMover9001 : Crane {
+private object CrateMover9001 : Crane {
     override fun move(from: List<Char>, to: List<Char>, amount: Int): Pair<List<Char>, List<Char>> =
         from.drop(amount) to (from.take(amount) + to)
 }
