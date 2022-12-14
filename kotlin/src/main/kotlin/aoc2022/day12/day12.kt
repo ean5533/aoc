@@ -1,5 +1,6 @@
 package aoc2022.day12
 
+import lib.Point2D
 import lib.aStarSearch
 import lib.loadResourceAsString
 import lib.printTimeTaken
@@ -18,20 +19,20 @@ fun main() {
     }
 }
 
-private fun getNextPositions(position: Pair<Int, Int>, reversed: Boolean): List<Pair<Pair<Int, Int>, Int>> =
+private fun getNextPositions(position: Point2D, reversed: Boolean): List<Pair<Point2D, Int>> =
     listOfNotNull(
-        if (position.first > 0) position.copy(first = position.first - 1) else null,
-        if (position.first < grid.size - 1) position.copy(first = position.first + 1) else null,
-        if (position.second > 0) position.copy(second = position.second - 1) else null,
-        if (position.second < grid[0].size - 1) position.copy(second = position.second + 1) else null,
+        if (position.x > 0) position.copy(x = position.x - 1) else null,
+        if (position.x < grid.size - 1) position.copy(x = position.x + 1) else null,
+        if (position.y > 0) position.copy(y = position.y - 1) else null,
+        if (position.y < grid[0].size - 1) position.copy(y = position.y + 1) else null,
     )
         .filter { if (reversed) height(position) - 1 <= height(it) else height(position) + 1 >= height(it) }
         .map { it to 1 }
 
-private fun height(position: Pair<Int, Int>): Int = grid[position.first][position.second]
+private fun height(position: Point2D): Int = grid[position.x][position.y]
 
-private fun findPositionOf(c: Char) = input.mapIndexedNotNull { rowIndex, row ->
-    row.mapIndexedNotNull { colIndex, value -> if (value == c) rowIndex to colIndex else null }.singleOrNull()
+private fun findPositionOf(c: Char): Point2D = input.mapIndexedNotNull { rowIndex, row ->
+    row.mapIndexedNotNull { colIndex, value -> if (value == c) Point2D(rowIndex, colIndex) else null }.singleOrNull()
 }.single()
 
 private fun parseGrid(): List<List<Int>> = input.map {

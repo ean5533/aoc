@@ -1,5 +1,6 @@
 package aoc2022.day9
 
+import lib.Point2D
 import lib.loadResourceAsString
 import lib.replaceFirst
 
@@ -15,12 +16,12 @@ fun main() {
 }
 
 private data class Board(
-    val positions: List<Pair<Int, Int>>,
-    val tailVisitedPositions: Set<Pair<Int, Int>>
+    val positions: List<Point2D>,
+    val tailVisitedPositions: Set<Point2D>
 ) {
     constructor(knotCount: Int) : this(
-        positions = (0 until knotCount).map { 0 to 0 }.toMutableList(),
-        tailVisitedPositions = mutableSetOf(0 to 0)
+        positions = (0 until knotCount).map { Point2D(0, 0) }.toMutableList(),
+        tailVisitedPositions = mutableSetOf(Point2D(0, 0))
     )
 
     fun execute(moves: List<Move>): Board = moves.fold(this) { board, move -> board.execute(move) }
@@ -31,22 +32,22 @@ private data class Board(
         Board(newPositions, board.tailVisitedPositions + newPositions.last())
     }//.also { println("After ${move.direction} ${move.distance}:  ${it.positions}, ${it.tailVisitedPositions}") }
 
-    private fun Pair<Int, Int>.moveToFollow(leader: Pair<Int, Int>): Pair<Int, Int> {
-        if (Math.abs(leader.first - this.first) <= 1 && Math.abs(leader.second - this.second) <= 1) return this
+    private fun Point2D.moveToFollow(leader: Point2D): Point2D {
+        if (Math.abs(leader.x - this.x) <= 1 && Math.abs(leader.y - this.y) <= 1) return this
 
         return this.copy(
-            first = this.first + leader.first.compareTo(this.first),
-            second = this.second + leader.second.compareTo(this.second),
+            x = this.x + leader.x.compareTo(this.x),
+            y = this.y + leader.y.compareTo(this.y),
         )
     }
 }
 
 internal data class Move(val direction: String, val distance: Int) {
-    fun applyTo(pair: Pair<Int, Int>): Pair<Int, Int> = when (direction) {
-        "R" -> pair.copy(first = pair.first + 1)
-        "L" -> pair.copy(first = pair.first - 1)
-        "U" -> pair.copy(second = pair.second + 1)
-        "D" -> pair.copy(second = pair.second - 1)
+    fun applyTo(pair: Point2D): Point2D = when (direction) {
+        "R" -> pair.copy(x = pair.x + 1)
+        "L" -> pair.copy(x = pair.x - 1)
+        "U" -> pair.copy(y = pair.y + 1)
+        "D" -> pair.copy(y = pair.y - 1)
         else -> throw IllegalStateException()
     }
 }

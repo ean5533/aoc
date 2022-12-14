@@ -1,5 +1,6 @@
 package aoc2022.day9
 
+import lib.Point2D
 import lib.loadResourceAsString
 
 private val input = loadResourceAsString("text/aoc2022/day9").trim()
@@ -14,8 +15,8 @@ fun main() {
 }
 
 private class MutableBoard(knotCount: Int) {
-    private val positions: MutableList<Pair<Int, Int>> = (0 until knotCount).map { 0 to 0 }.toMutableList()
-    private val tailVisitedPositions: MutableSet<Pair<Int, Int>> = mutableSetOf(0 to 0)
+    private val positions: MutableList<Point2D> = (0 until knotCount).map { Point2D(0, 0) }.toMutableList()
+    private val tailVisitedPositions: MutableSet<Point2D> = mutableSetOf(Point2D(0, 0))
 
     val tailVisitedCount get() = tailVisitedPositions.size
 
@@ -29,12 +30,12 @@ private class MutableBoard(knotCount: Int) {
         }
     }
 
-    private fun Pair<Int, Int>.moveToFollow(leader: Pair<Int, Int>): Pair<Int, Int> {
-        if (Math.abs(leader.first - this.first) <= 1 && Math.abs(leader.second - this.second) <= 1) return this
+    private fun Point2D.moveToFollow(leader: Point2D): Point2D {
+        if (Math.abs(leader.x - this.x) <= 1 && Math.abs(leader.y - this.y) <= 1) return this
 
         return this.copy(
-            first = this.first + leader.first.compareTo(this.first),
-            second = this.second + leader.second.compareTo(this.second),
+            x = this.x + leader.x.compareTo(this.x),
+            y = this.y + leader.y.compareTo(this.y),
         )
     }
 }

@@ -1,6 +1,6 @@
 package aoc2021.day5
 
-import lib.Line
+import lib.Line2D
 import lib.Point2D
 import lib.loadResourceAsString
 
@@ -14,10 +14,10 @@ fun main() {
     part2(topology)
 }
 
-private fun parseInput(): List<Line> {
+private fun parseInput(): List<Line2D> {
     return input.lines().map { line ->
         val (startX, startY, endX, endY) = line.split(" -> ").flatMap { it.split(",").map(String::toInt) }
-        Line(Point2D(startX, startY), Point2D(endX, endY))
+        Line2D(Point2D(startX, startY), Point2D(endX, endY))
     }
 }
 
@@ -31,8 +31,8 @@ private fun part2(topology: Topology) {
     println("Overlap count (all) $overlaps")
 }
 
-private data class Topology(val width: Int, val height: Int, val ventLines: List<Line>) {
-    constructor(ventLines: List<Line>) : this(
+private data class Topology(val width: Int, val height: Int, val ventLines: List<Line2D>) {
+    constructor(ventLines: List<Line2D>) : this(
         ventLines.maxOf { listOf(it.start.x, it.end.x).maxOrNull()!! } + 1,
         ventLines.maxOf { listOf(it.start.y, it.end.y).maxOrNull()!! } + 1,
         ventLines
@@ -41,7 +41,7 @@ private data class Topology(val width: Int, val height: Int, val ventLines: List
     fun toVentCounts(cardinalLinesOnly: Boolean): Map<Point2D, Int> {
         return ventLines
             .filter { it.start.x == it.end.x || it.start.y == it.end.y || !cardinalLinesOnly }
-            .flatMap(Line::toSequence)
+            .flatMap(Line2D::toSequence)
             .groupBy { it }
             .mapValues { it.value.count() }
     }

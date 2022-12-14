@@ -9,17 +9,15 @@ fun main() {
     println("part2: " + parseInput().let { Cave(it, useInfinifloor = true) }.also { it.fillWithSand() }.sandCount())
 }
 
-private fun parseInput(): Set<Pair<Int, Int>> = input.lines().flatMap {
-    val coordinates = it.split(" -> ").map { it.split(",").map { it.toInt() }.pair() }
-    coordinates.zipWithNext().flatMap { (start, end) ->
-        (start.first smartRange end.first).cartesianProduct(start.second smartRange end.second)
-    }
+private fun parseInput(): Set<Line2D> = input.lines().flatMap {
+    val points = it.split(" -> ").map { it.split(",").map { it.toInt() }.toPoint2D() }
+    points.zipWithNext().map { (start, end) -> Line2D(start, end) }
 }.toSet()
 
-class Cave(rocks: Set<Pair<Int, Int>>, useInfinifloor: Boolean = false) {
-    private val nonEmptySpaces =
-        rocks.associateWith { Cave.ROCK }.toMutableMap().also { it.put(sandSource, Cave.SOURCE) }
-    private val floor = nonEmptySpaces.keys.maxOf { it.second }
+class Cave(rockLines: Set<Line2D>, useInfinifloor: Boolean = false) {
+    private val nonEmptySpaces = rockLines.flatMap { it.toSequence() }.associateWith { Cave.ROCK }.toMutableMap()
+        .also { it.put(sandSource, Cave.SOURCE) }
+    private val floor = nonEmptySpaces.keys.maxOf { it.y }
     private val infinifloor = if (useInfinifloor) floor + 2 else Int.MAX_VALUE
 
     fun sandCount() = nonEmptySpaces.values.count { it == Companion.SAND }
@@ -31,25 +29,25 @@ class Cave(rocks: Set<Pair<Int, Int>>, useInfinifloor: Boolean = false) {
         }
     }
 
-    private fun tryAddSand(): Pair<Int, Int>? {
+    private fun tryAddSand(): Point2D? {
         val position = generateSequence(sandSource) { tryToFall(it) }.last()
         return if (isInAbyss(position)) null else position
     }
 
-    private fun tryToFall(current: Pair<Int, Int>): Pair<Int, Int>? =
+    private fun tryToFall(current: Point2D): Point2D? =
         listOf(
-            current.copy(second = current.second + 1),
-            current.copy(second = current.second + 1, first = current.first - 1),
-            current.copy(second = current.second + 1, first = current.first + 1),
-        ).firstOrNull { !nonEmptySpaces.containsKey(it) && it.second < infinifloor && !isInAbyss(current) }
+            current.copy(y = current.y + 1),
+            current.copy(y = current.y + 1, x = current.x - 1),
+            current.copy(y = current.y + 1, x = current.x + 1),
+        ).firstOrNull { !nonEmptySpaces.containsKey(it) && it.y < infinifloor && !isInAbyss(current) }
 
-    private fun isInAbyss(space: Pair<Int, Int>): Boolean = space.second >= floor + 3
+    private fun isInAbyss(space: Point2D): Boolean = space.y >= floor + 3
 
     @Suppress("unused")
-    private fun draw(grid: Map<Pair<Int, Int>, String>) {
-        (grid.keys.minOf { it.second }..grid.keys.maxOf { it.second }).forEach { rowNum ->
-            val row = (grid.keys.minOf { it.first }..grid.keys.maxOf { it.first }).map { colNum ->
-                grid[colNum to rowNum] ?: EMPTY
+    private fun draw(grid: Map<Point2D, String>) {
+        (grid.keys.minOf { it.y }..grid.keys.maxOf { it.y }).forEach { rowNum ->
+            val row = (grid.keys.minOf { it.x }..grid.keys.maxOf { it.x }).map { colNum ->
+                grid[Point2D(colNum, rowNum)] ?: EMPTY
             }
             println(row.joinToString(""))
         }
@@ -61,6 +59,6 @@ class Cave(rocks: Set<Pair<Int, Int>>, useInfinifloor: Boolean = false) {
         const val SAND = "O"
         const val ROCK = "#"
 
-        private val sandSource = 500 to 0
+        private val sandSource = Point2D(500, 0)
     }
 }

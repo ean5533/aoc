@@ -8,7 +8,13 @@ data class Point2D(val x: Int, val y: Int) {
     fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
 }
 
-data class Line(val start: Point2D, val end: Point2D) {
+fun Iterable<Int>.toPoint2D(): Point2D {
+    val (x, y) = this.take(2)
+    return Point2D(x, y)
+}
+fun Pair<Int, Int>.toPoint2D(): Point2D = Point2D(first, second)
+
+data class Line2D(val start: Point2D, val end: Point2D) {
     fun toSequence(): Sequence<Point2D> {
         val xRange = if (start.x == end.x) generateSequence { start.x } else (start.x smartRange end.x).asSequence()
         val yRange = if (start.y == end.y) generateSequence { start.y } else (start.y smartRange end.y).asSequence()
