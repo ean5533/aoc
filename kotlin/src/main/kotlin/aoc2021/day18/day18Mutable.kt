@@ -16,7 +16,7 @@ fun main() {
  * An awful solution that I'm really not happy with. The explode operation is really bizarre and hard to model, and
  * forced me to add mutability and bidirectional links and just general horror.
  */
-object day18Mutable {
+private object day18Mutable {
     fun part1() {
         val poppop = parseInput().reduce { a, b -> a.plus(b).reduce() }.magnitude()
         println("Part 1: $poppop")

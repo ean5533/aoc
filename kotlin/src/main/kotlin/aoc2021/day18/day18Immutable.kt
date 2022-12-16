@@ -17,7 +17,7 @@ fun main() {
  * An attempt to solve day 18 using immutable data structures. Becomes completely untenable when trying to figure out
  * how to model the explode() operation.
  */
-object Day18Immutable {
+private object Day18Immutable {
     fun part1(snailfishies: List<Snailfish>) {
         val poppop = snailfishies.reduce { a, b -> a.plus(b).reduce() }.magnitude()
         println("Part 1: $poppop")

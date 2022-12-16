@@ -14,7 +14,7 @@ private fun parseInput(): Set<Line2D> = input.lines().flatMap {
     points.zipWithNext().map { (start, end) -> Line2D(start, end) }
 }.toSet()
 
-class Cave(rockLines: Set<Line2D>, useInfinifloor: Boolean = false) {
+private class Cave(rockLines: Set<Line2D>, useInfinifloor: Boolean = false) {
     private val nonEmptySpaces = rockLines.flatMap { it.toSequence() }.associateWith { Cave.ROCK }.toMutableMap()
         .also { it.put(sandSource, Cave.SOURCE) }
     private val floor = nonEmptySpaces.keys.maxOf { it.y }
