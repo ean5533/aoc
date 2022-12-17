@@ -1,8 +1,8 @@
 package aoc2022.day7
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2022/day7").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 private val allDirs = parseInput()
 
 /**

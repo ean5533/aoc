@@ -1,6 +1,6 @@
 package aoc2022.day11
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
 private val worryModulator = parseMonkies().map { it.testDivisor }.reduce { a, b -> a * b }
 
@@ -27,7 +27,7 @@ private fun exec(rounds: Int, worryDivisor: Int) {
 }
 
 fun parseMonkies(): List<Monkey> {
-    val iterator = loadResourceAsString("text/aoc2022/day11").trim().lines().iterator()
+    val iterator = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().iterator()
 
     return iterator.asSequence().mapNotNull {
         if (it.isEmpty()) return@mapNotNull null

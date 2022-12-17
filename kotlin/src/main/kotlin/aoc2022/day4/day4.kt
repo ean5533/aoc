@@ -2,10 +2,10 @@ package aoc2022.day4
 
 import lib.containsAll
 import lib.containsAny
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.pair
 
-private val input = loadResourceAsString("text/aoc2022/day4").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 private val assignments = input.lines()
     .map {
         it.split(",").map {

@@ -1,10 +1,10 @@
 package aoc2022.day8
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.takeWhileInclusive
 import lib.transpose
 
-private val input = loadResourceAsString("text/aoc2022/day8").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 private val grid = input.lines().map { it.toList().map { Tree(it.digitToInt()) } }
 
 fun main() {

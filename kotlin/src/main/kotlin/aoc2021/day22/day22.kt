@@ -4,7 +4,7 @@ import lib.*
 import kotlin.math.max
 import kotlin.math.min
 
-private val input = loadResourceAsString("text/aoc2021/day22")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 fun main() {
     sanityTests()

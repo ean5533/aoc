@@ -1,8 +1,8 @@
 package aoc2021.day6
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2021/day6")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 // A mapping of TIME_UNTIL_SPAWN->NUMBER_OF_FISH
 typealias CountBySpawnTime = Map<Int, Long>

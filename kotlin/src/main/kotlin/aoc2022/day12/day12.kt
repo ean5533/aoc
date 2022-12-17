@@ -2,10 +2,10 @@ package aoc2022.day12
 
 import lib.Point2D
 import lib.aStarSearch
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.printTimeTaken
 
-private val input = loadResourceAsString("text/aoc2022/day12").trim().lines().map { it.toList() }
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map { it.toList() }
 private val startPosition = findPositionOf('S')
 private val endPosition = findPositionOf('E')
 private val grid = parseGrid()

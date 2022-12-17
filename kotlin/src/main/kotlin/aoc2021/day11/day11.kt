@@ -2,7 +2,7 @@ package aoc2021.day11
 
 import lib.*
 
-private val input = loadResourceAsString("text/aoc2021/day11")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 
 fun main() {

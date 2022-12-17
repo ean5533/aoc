@@ -1,9 +1,9 @@
 package aoc2022.day5
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.transpose
 
-private val input = loadResourceAsString("text/aoc2022/day5").lines()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").lines()
 
 fun main() {
     val (warehouse, moves) = parseInput()

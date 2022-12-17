@@ -1,9 +1,9 @@
 package aoc2021.day3
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
 
-private val input = loadResourceAsString("text/aoc2021/day3")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 private val allBits: List<List<Int>> = input.lines().map { it.trim().toList().map(Char::digitToInt) }
 private val columns = allBits[0].size
 

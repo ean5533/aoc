@@ -2,9 +2,9 @@ package aoc2021.day5
 
 import lib.Line2D
 import lib.Point2D
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2021/day5")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 fun main() {
     val ventLines = parseInput()

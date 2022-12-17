@@ -2,9 +2,9 @@ package aoc2021.day20
 
 import lib.Point2D
 import lib.cartesianProduct
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2021/day20")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 private const val DARK = 0
 private const val LIGHT = 1

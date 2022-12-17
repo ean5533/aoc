@@ -1,9 +1,9 @@
 package aoc2022.day2
 
 import lib.incrementInsideRange
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2022/day2").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 
 private const val ROCK = 1
 private const val PAPER = 2

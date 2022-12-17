@@ -1,9 +1,9 @@
 package aoc2021.day8
 
 import lib.intersectAll
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2021/day8")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 private val lettersToDigit = mapOf(
     "abcefg".toSet() to 0,

@@ -1,9 +1,9 @@
 package aoc2022.day9
 
 import lib.Point2D
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2022/day9").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 private val moves = input.lines().map { it.split(" ").let { Move(it[0], it[1].toInt()) } }
 
 /**

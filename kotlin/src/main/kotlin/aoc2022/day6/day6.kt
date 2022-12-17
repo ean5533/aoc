@@ -1,8 +1,8 @@
 package aoc2022.day6
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2022/day6").trim().lines().first()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().first()
 
 fun main() {
     part1()

@@ -2,10 +2,10 @@ package aoc2021.day25
 
 import lib.printTimeTaken
 import lib.Point2D
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
 
-private val input = loadResourceAsString("text/aoc2021/day25")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 fun main() {
     val topology = parseInput()

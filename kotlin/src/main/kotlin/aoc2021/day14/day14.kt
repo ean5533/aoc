@@ -1,9 +1,9 @@
 package aoc2021.day14
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.sumCounts
 
-private val input = loadResourceAsString("text/aoc2021/day14")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 
 fun main() {

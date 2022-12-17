@@ -2,10 +2,10 @@ package aoc2021.day19
 
 import lib.Point3D
 import lib.cartesianProduct
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.printTimeTaken
 
-private val input = loadResourceAsString("text/aoc2021/day19")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 fun main() {
     // Scanners with more beacons are more likely to overlap with each other

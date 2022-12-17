@@ -1,8 +1,8 @@
 package aoc2021.day1
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2021/day1")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 private val numbers: List<Int> = input.lines().map { it.trim().toInt() }
 
 fun main() {

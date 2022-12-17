@@ -7,6 +7,11 @@ fun loadResourceAsString(path: String): String {
     return classLoader.getResource(path)!!.readText()
 }
 
+fun loadResourceMatchingPackageName(javaClass: Class<Any>, prefix: String = ""): String {
+    val path = prefix + javaClass.packageName.replace(".", "/")
+    return loadResourceAsString(path)
+}
+
 fun printTimeTaken(block: () -> Unit) {
     measureTimeMillis(block).also { println("(took $it ms)") }
 }

@@ -1,9 +1,9 @@
 package aoc2021.day13
 
 import lib.Point2D
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceAsString("text/aoc2021/day13")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 
 fun main() {

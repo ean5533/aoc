@@ -1,7 +1,7 @@
 package aoc2022.day13
 
 import com.google.gson.Gson
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.pair
 import lib.takeWhileInclusive
 
@@ -38,7 +38,7 @@ private object PacketComparator : Comparator<Any> {
 }
 
 private fun parseInput(): List<Pair<List<*>, List<*>>> {
-    return loadResourceAsString("text/aoc2022/day13").trim().lines().windowed(3, 3, true).map {
+    return loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().windowed(3, 3, true).map {
         it.take(2).map { Gson().fromJson(it, List::class.java) }.pair()
     }
 }

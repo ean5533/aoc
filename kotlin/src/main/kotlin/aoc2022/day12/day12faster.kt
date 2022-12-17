@@ -2,7 +2,7 @@ package aoc2022.day12
 
 import lib.*
 
-private val input = loadResourceAsString("text/aoc2022/day12").trim().lines().map { it.toList() }
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map { it.toList() }
 private val startPosition = findPositionOf('S')
 private val endPosition = findPositionOf('E')
 private val grid = parseGrid()

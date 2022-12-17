@@ -1,10 +1,10 @@
 package aoc2021.day16
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.next
 import lib.takeWhileInclusive
 
-private val input = loadResourceAsString("text/aoc2021/day16")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 
 fun main() {

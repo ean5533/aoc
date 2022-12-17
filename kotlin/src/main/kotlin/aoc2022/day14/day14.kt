@@ -2,7 +2,7 @@ package aoc2022.day14
 
 import lib.*
 
-private val input = loadResourceAsString("text/aoc2022/day14").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 
 fun main() {
     println("part1: " + parseInput().let { Cave(it) }.also { it.fillWithSand() }.sandCount())

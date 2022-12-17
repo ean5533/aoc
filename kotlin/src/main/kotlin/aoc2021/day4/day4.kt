@@ -1,9 +1,9 @@
 package aoc2021.day4
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import java.lang.IllegalArgumentException
 
-private val input = loadResourceAsString("text/aoc2021/day4")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 fun main() {
     val (numbers, boards) = parseInput()

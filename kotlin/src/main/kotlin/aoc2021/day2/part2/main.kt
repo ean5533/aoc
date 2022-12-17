@@ -1,9 +1,9 @@
 package aoc2021.day2.part2
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import java.lang.RuntimeException
 
-private val input = loadResourceAsString("text/aoc2021/day2")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 private val commands: List<Command> = input.lines().map(Command::parse)
 
 fun main() {

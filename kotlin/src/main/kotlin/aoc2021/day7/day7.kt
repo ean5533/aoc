@@ -1,9 +1,9 @@
 package aoc2021.day7
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import kotlin.math.abs
 
-private val input = loadResourceAsString("text/aoc2021/day7")
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
 
 fun main() {
     val numbers = input.split(",").map(String::toLong)

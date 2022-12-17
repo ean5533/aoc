@@ -1,10 +1,10 @@
 package aoc2022.day10
 
-import lib.loadResourceAsString
+import lib.loadResourceMatchingPackageName
 import lib.pop
 import lib.push
 
-private val input = loadResourceAsString("text/aoc2022/day10").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
 private val instructions = input.lines().map {
     when {
         it == "noop" -> NoOp
