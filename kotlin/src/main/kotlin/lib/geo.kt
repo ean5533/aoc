@@ -7,12 +7,15 @@ import kotlin.math.abs
 data class Point2D(val x: Int, val y: Int) {
     fun shift(shiftX: Int, shiftY: Int) = copy(x = x + shiftX, y = y + shiftY)
     fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
+
+    override fun toString(): String = "[x:$x, y:$y]"
 }
 
 fun Iterable<Int>.toPoint2D(): Point2D {
     val (x, y) = this.take(2)
     return Point2D(x, y)
 }
+
 fun Pair<Int, Int>.toPoint2D(): Point2D = Point2D(first, second)
 
 data class Line2D(val start: Point2D, val end: Point2D) {
@@ -42,10 +45,43 @@ data class Point3D(val x: Int, val y: Int, val z: Int) {
 
     fun distanceTo(other: Point3D): Point3D = Point3D(x - other.x, y - other.y, z - other.z)
     fun move(amount: Point3D): Point3D = Point3D(x + amount.x, y + amount.y, z + amount.z)
+    fun neighbors(): List<Point3D> = Companion.translations.map { it(this) }
+
+    fun startFloodFill(include: (Point3D) -> Boolean): Set<Point3D> {
+        val filled = mutableSetOf<Point3D>()
+        val queue = ArrayDeque(listOf(this))
+        queue.asSequence().forEach { if (include(it) && filled.add(it)) queue.addAll(it.neighbors()) }
+        return filled
+    }
+
+    override fun toString(): String = "[x:$x, y:$y, z:$z]"
+
+    companion object {
+        val ORIGIN = Point3D(0, 0, 0)
+        private val translations = listOf<(Point3D) -> Point3D>(
+            { point -> point.copy(x = point.x - 1) },
+            { point -> point.copy(x = point.x + 1) },
+            { point -> point.copy(y = point.y - 1) },
+            { point -> point.copy(y = point.y + 1) },
+            { point -> point.copy(z = point.z - 1) },
+            { point -> point.copy(z = point.z + 1) },
+        )
+    }
 }
 
+fun Iterable<Int>.toPoint3D(): Point3D {
+    val (x, y, z) = this.take(3)
+    return Point3D(x, y, z)
+}
+
+fun Triple<Int, Int, Int>.toPoint3D(): Point3D = Point3D(first, second, third)
+
 data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
+    fun origin(): Point3D = Point3D(xRange.start, yRange.start, zRange.start)
     fun size(): Long = xRange.count().toLong() * yRange.count().toLong() * zRange.count().toLong()
+    fun points(): List<Point3D> = xRange.flatMap { x -> yRange.flatMap { y -> zRange.map { z -> (Point3D(x, y, z)) } } }
+
+    fun contains(point: Point3D) = xRange.contains(point.x) && yRange.contains(point.y) && zRange.contains(point.z)
 
     fun minus(other: Area3D): List<Area3D> {
         val (xSliced, xLeftover) = this.extractXAxisSlice(other.xRange)
@@ -67,7 +103,7 @@ data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
     fun extractXAxisSlice(range: IntRange): Pair<Area3D?, List<Area3D>> {
         val (extractedXRange, remainingXRanges) = xRange.extractSlice(range)
         return extractedXRange?.let { Area3D(it, yRange, zRange) } to
-                remainingXRanges.map { Area3D(it, yRange, zRange) }
+            remainingXRanges.map { Area3D(it, yRange, zRange) }
     }
 
     /**
@@ -76,7 +112,7 @@ data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
     fun extractYAxisSlice(range: IntRange): Pair<Area3D?, List<Area3D>> {
         val (extractedYRange, remainingYRanges) = yRange.extractSlice(range)
         return extractedYRange?.let { Area3D(xRange, it, zRange) } to
-                remainingYRanges.map { Area3D(xRange, it, zRange) }
+            remainingYRanges.map { Area3D(xRange, it, zRange) }
     }
 
     /**
@@ -85,7 +121,7 @@ data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
     fun extractZAxisSlice(range: IntRange): Pair<Area3D?, List<Area3D>> {
         val (extractedZRange, remainingZRanges) = zRange.extractSlice(range)
         return extractedZRange?.let { Area3D(xRange, yRange, it) } to
-                remainingZRanges.map { Area3D(xRange, yRange, it) }
+            remainingZRanges.map { Area3D(xRange, yRange, it) }
     }
 }
 

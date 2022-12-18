@@ -14,6 +14,7 @@ abstract class SearchState<T>(val current: T) {
     abstract val cost: Int
     abstract fun getNextStates(): List<SearchState<T>>
     abstract fun isSolution(): Boolean
+    open fun distanceHeuristic(): Int = 0
 }
 
 /**
@@ -22,7 +23,7 @@ abstract class SearchState<T>(val current: T) {
  * @param initialState The starting point for the search
  */
 fun <T, S : SearchState<T>> aStarSearch(initialState: S): S? {
-    val queue = PriorityQueue<S>(compareBy({ it.cost })).also { it.add(initialState) }
+    val queue = PriorityQueue<S>(compareBy({ it.cost + it.distanceHeuristic() })).also { it.add(initialState) }
     val seenToLowestCost = mutableMapOf(initialState.current to 0)
 
     while (queue.isNotEmpty()) {
@@ -64,9 +65,10 @@ fun <T> aStarSearch(
     initialState: T,
     getNextStates: (T) -> List<Pair<T, Int>>,
     isSolution: (T) -> Boolean,
-    retainIntermediateStates: Boolean = false
+    distanceHeuristic: (T) -> Int = { 0 },
+    retainIntermediateStates: Boolean = false,
 ): PathSearchState<T>? {
-    return aStarSearch(PathSearchState(initialState, getNextStates, isSolution, retainIntermediateStates, listOf()))
+    return aStarSearch(PathSearchState(initialState, getNextStates, isSolution, distanceHeuristic, retainIntermediateStates, listOf()))
 }
 
 /**
@@ -76,6 +78,7 @@ class PathSearchState<T>(
     currentState: T,
     val getNextStates: (T) -> List<Pair<T, Int>>,
     val isSolution: (T) -> Boolean,
+    val distanceHeuristic: (T) -> Int = { 0 },
     val retainIntermediateStates: Boolean = false,
     val steps: List<PathStep<T>>
 ) : SearchState<T>(currentState) {
@@ -88,6 +91,7 @@ class PathSearchState<T>(
                 nextState,
                 getNextStates,
                 isSolution,
+                distanceHeuristic,
                 retainIntermediateStates,
                 steps + PathStep(cost, maybeIntermediateState)
             )
@@ -96,6 +100,10 @@ class PathSearchState<T>(
 
     override fun isSolution(): Boolean {
         return isSolution(current)
+    }
+
+    override fun distanceHeuristic(): Int {
+        return distanceHeuristic(current)
     }
 }
 
