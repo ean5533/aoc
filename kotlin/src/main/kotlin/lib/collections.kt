@@ -93,6 +93,7 @@ fun <T> ArrayDeque<T>.pop(): T? = removeLastOrNull()
 fun <T> ArrayDeque<T>.peek(): T? = lastOrNull()
 
 fun <T> Sequence<T>.repeat() = sequence { while (true) yieldAll(this@repeat) }
+fun <T> List<T>.repeat() = asSequence().repeat()
 
 fun <T> List<T>.pair() = this[0] to this[1]
 

@@ -5,6 +5,7 @@ import java.lang.Integer.min
 import kotlin.math.abs
 
 data class Point2D(val x: Int, val y: Int) {
+    fun shift(shiftX: Int, shiftY: Int) = copy(x = x + shiftX, y = y + shiftY)
     fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
 }
 
