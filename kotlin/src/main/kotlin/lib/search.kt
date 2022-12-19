@@ -155,6 +155,8 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
  * @property getNextStates Produces the next set of possible states from some input state
  * @property isTerminal Decides if a search state is a terminal (ending) state.
  * @property stateIdentity Provides a unique representation of this state for purposes of avoiding checking the same state twice.
+ * @param T The type of state being searched
+ * @param I The type of the unique identity of the state being searched (which may be the same as the state itself)
  */
 abstract class BestScoreSearchState<T, I>(val current: T) {
     abstract val score: Int
