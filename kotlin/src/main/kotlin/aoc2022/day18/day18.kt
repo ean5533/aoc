@@ -24,12 +24,6 @@ data class Lava(val droplets: Set<Point3D>) {
             droplets.minOf { it.z } - 1..droplets.maxOf { it.z } + 1
         )
         val outside = bounds.origin().startFloodFill { !droplets.contains(it) && bounds.contains(it) }.toSet()
-
-        // There may be multiple pockets of "inside". To find them all, keep flood filling from arbitrary droplets that haven't already been found until the inside has the correct area
-        val expectedInsideSize = bounds.size().toInt() - outside.size
-        return generateSequence(listOf<Point3D>() to droplets) { (inside, remainingDroplets) ->
-            val nextInside = remainingDroplets.first().startFloodFill { !outside.contains(it) }
-            inside + nextInside to remainingDroplets - nextInside
-        }.takeWhileInclusive { expectedInsideSize != it.first.size }.last().let { Lava(it.first.toSet()) }
+        return Lava((bounds.points() - outside).toSet())
     }
 }
