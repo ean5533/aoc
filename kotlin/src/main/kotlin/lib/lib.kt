@@ -15,3 +15,9 @@ fun loadResourceMatchingPackageName(javaClass: Class<Any>, prefix: String = ""):
 fun printTimeTaken(block: () -> Unit) {
     measureTimeMillis(block).also { println("(took $it ms)") }
 }
+
+fun <T> tryOrNull(fn: () -> T):T? = try {
+    fn()
+} catch (ex: Exception) {
+    null
+}
