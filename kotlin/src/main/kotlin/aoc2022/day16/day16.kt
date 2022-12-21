@@ -8,6 +8,7 @@ fun main() {
 
     printTimeTaken {
         val exhaustiveSearch = bestScoreSearch(CaveSearchState(caveState))
+        val history = exhaustiveSearch.current.orderedStateHistory()
         println("Part1: " + exhaustiveSearch.current.potentialPressureReleased)
     }
 }
@@ -96,6 +97,8 @@ private data class CaveState(
 
     fun moveToAndOpenBestClosedValve(): CaveState =
         remainingValvesByPotentialPressureReleased.maxBy { it.second }.first.let { moveToAndOpenValve(it) }
+
+    fun orderedStateHistory(): List<CaveState> = (prior?.orderedStateHistory() ?: listOf()) + this
 
     override fun toString(): String =
         "CaveState(${current.name}, $minutesLeft, $potentialPressureReleased, ${valveStates.map { (valve, state) -> "${valve.name}: ${if (state.open) "open" else "closed"}" }})"

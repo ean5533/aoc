@@ -124,7 +124,13 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
     while (queue.isNotEmpty()) {
         val state = queue.remove()
         if (state.isTerminal()) {
-            bestTerminalScoreFound = if (state.score > bestTerminalScoreFound) state.score else bestTerminalScoreFound
+            bestTerminalScoreFound = if (state.score > bestTerminalScoreFound) {
+                // This is only necessary to control memory buildup. It's quite wasteful, CPU cycles-wise
+                queue.removeIf { it.score + it.terminationScoreUpperBound <= state.score }
+                seenToHighestScoreState.entries.removeIf{it.value.score + it.value.terminationScoreUpperBound < state.score}
+                state.score
+            } else bestTerminalScoreFound
+                        
             continue // Found a path to some solution, not necessarily optimal
         }
         if (state.score + state.terminationScoreUpperBound <= bestTerminalScoreFound) {
@@ -134,15 +140,23 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
         val nextStates = state.getNextStates()
 
         nextStates
-            // Only keep searching if we have found a cheaper path to a previously found state
             .filter { nextState ->
-                seenToHighestScoreState[nextState.stateIdentity()]?.let { nextState.score > it.score } ?: true
+                // Only keep searching if we have found a cheaper path to a previously found state
+                (seenToHighestScoreState[nextState.stateIdentity()]?.let { nextState.score > it.score } ?: true) &&
+                    nextState.score + nextState.terminationScoreUpperBound > bestTerminalScoreFound
             }
             .forEach { nextState ->
                 @Suppress("UNCHECKED_CAST")
                 queue.add(nextState as S)
                 seenToHighestScoreState[nextState.stateIdentity()] = nextState
             }
+        
+//        if(queue.size > 10000 && bestTerminalScoreFound < Int.MAX_VALUE) {
+////            queue.take(1000).filter { it.score + it.terminationScoreUpperBound <= bestTerminalScoreFound }.forEach { queue.remove(it) }
+//            queue.removeIf { it.score + it.terminationScoreUpperBound <= bestTerminalScoreFound }
+//            if(queue.size > 10000)
+//                println("Failed to trim down below 10000, this is a bad sign...")
+//        }
     }
 
     return seenToHighestScoreState.filter { it.value.isTerminal() }.maxBy { it.value.score }.value
@@ -166,5 +180,5 @@ abstract class BestScoreSearchState<T, I>(val current: T) {
     abstract fun isTerminal(): Boolean
     abstract fun stateIdentity(): I
     override fun toString(): String =
-        "cost: $score, estimatedCostToOptimalTermination: $estimatedScoreToOptimalTermination, terminationCostLowerBound: $terminationScoreUpperBound -- $current"
+        "score: $score, estimatedScoreToOptimalTermination: $estimatedScoreToOptimalTermination, terminationScoreUpperBound: $terminationScoreUpperBound -- $current"
 }
