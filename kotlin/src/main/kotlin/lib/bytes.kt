@@ -11,15 +11,15 @@ fun ByteArray.xor(byte: Byte): ByteArray = map { it.xor(byte) }.toByteArray()
 fun ByteArray.xor(bytes: ByteArray): ByteArray = xor(bytes.asSequence())
 
 fun ByteArray.xor(bytes: Sequence<Byte>): ByteArray =
-    asSequence()
-        .zip(bytes)
-        .map { (first, second) -> first.xor(second) }
-        .toList()
-        .toByteArray()
+  asSequence()
+    .zip(bytes)
+    .map { (first, second) -> first.xor(second) }
+    .toList()
+    .toByteArray()
 
 fun ByteArray.hammingDistance(other: ByteArray): Int {
-    require(size == other.size)
-    return asSequence()
-        .zip(other.asSequence())
-        .sumOf { (first, second) -> first.xor(second).toInt().toString(2).count { it == '1' } }
+  require(size == other.size)
+  return asSequence()
+    .zip(other.asSequence())
+    .sumOf { (first, second) -> first.xor(second).toInt().toString(2).count { it == '1' } }
 }
