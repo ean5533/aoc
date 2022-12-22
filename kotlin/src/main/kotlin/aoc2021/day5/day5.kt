@@ -17,7 +17,7 @@ fun main() {
 private fun parseInput(): List<Line2D> {
     return input.lines().map { line ->
         val (startX, startY, endX, endY) = line.split(" -> ").flatMap { it.split(",").map(String::toInt) }
-        Line2D(Point2D(startX, startY), Point2D(endX, endY))
+        Point2D(startX, startY)..Point2D(endX, endY)
     }
 }
 

@@ -56,9 +56,8 @@ private data class State(
       copy(position = newPosition, facing = newFacing, path = path + steps)
     }
     is Turn -> {
-      val currentDirectionIndex = Directions.indexOf(facing)
-      val directionIndexModifier = if (instruction.direction == 'L') -1 else 1
-      val newFacing = Directions[((currentDirectionIndex + directionIndexModifier).mod(Directions.size))]
+      val indexModifier = if (instruction.direction == 'L') -1 else 1
+      val newFacing = Directions.circularGet(Directions.indexOf(facing) + indexModifier)
       copy(facing = newFacing, path = path + (position to newFacing))
     }
   }

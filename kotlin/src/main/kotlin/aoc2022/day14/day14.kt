@@ -11,7 +11,7 @@ fun main() {
 
 private fun parseInput(): Set<Line2D> = input.lines().flatMap {
     val points = it.split(" -> ").map { it.split(",").map { it.toInt() }.toPoint2D() }
-    points.zipWithNext().map { (start, end) -> Line2D(start, end) }
+    points.zipWithNext().map { (start, end) -> start..end }
 }.toSet()
 
 private class Cave(rockLines: Set<Line2D>, useInfinifloor: Boolean = false) {

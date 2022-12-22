@@ -3,13 +3,19 @@ package lib
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 
 data class Point2D(val x: Int, val y: Int) {
-  fun shift(shiftX: Int, shiftY: Int) = copy(x = x + shiftX, y = y + shiftY)
+  fun shift(amountX: Int, amountY: Int) = copy(x = x + amountX, y = y + amountY)
+  fun shiftX(amount: Int) = copy(x = x + amount)
+  fun shiftY(amount: Int) = copy(y = y + amount)
   fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
+  fun neighbors4(): List<Point2D> = adjacency4Offsets.map { this + it }
+  fun neighbors8(): List<Point2D> = adjacency8Offsets.map { this + it }
 
-  operator fun plus(other: Point2D): Point2D = Point2D(x + other.x, y + other.y)
-  operator fun minus(other: Point2D): Point2D = Point2D(x - other.x, y - other.y)
+  operator fun plus(other: Point2D) = Point2D(x + other.x, y + other.y)
+  operator fun minus(other: Point2D) = Point2D(x - other.x, y - other.y)
+  operator fun rangeTo(other: Point2D) = Line2D(this, other)
 
   fun flipY(area: Area2D): Point2D {
     val offset = (area.maxY + area.minY) / 2
@@ -25,6 +31,11 @@ data class Point2D(val x: Int, val y: Int) {
   fun antiTranspose(area: Area2D): Point2D = transpose().flipX(area).flipY(area)
 
   override fun toString(): String = "[x:$x, y:$y]"
+
+  companion object {
+    private val adjacency4Offsets: List<Point2D> = listOf(-1, 1).cartesianProduct(listOf(-1, 1)).map { it.toPoint2D() }
+    private val adjacency8Offsets: List<Point2D> = (-1..1).cartesianProduct(-1..1).minus(0 to 0).map { it.toPoint2D() }
+  }
 }
 
 fun Iterable<Int>.toPoint2D(): Point2D {
@@ -35,6 +46,11 @@ fun Iterable<Int>.toPoint2D(): Point2D {
 fun Pair<Int, Int>.toPoint2D(): Point2D = Point2D(first, second)
 
 data class Line2D(val start: Point2D, val end: Point2D) {
+  init {
+    // Ensure it's a vertical, horizontal, or 45-degree diagonal line (this class can't handle anything else)
+    check(start.x == end.x || start.y == end.y || (end.x - start.x).absoluteValue == (end.y - start.y).absoluteValue)
+  }
+
   fun toSequence(): Sequence<Point2D> {
     val xRange = if (start.x == end.x) generateSequence { start.x } else (start.x smartRange end.x).asSequence()
     val yRange = if (start.y == end.y) generateSequence { start.y } else (start.y smartRange end.y).asSequence()
@@ -65,12 +81,20 @@ data class Area2D(val xRange: IntRange, val yRange: IntRange) {
 }
 
 data class Point3D(val x: Int, val y: Int, val z: Int) {
+  fun shift(amountX: Int, amountY: Int, amountZ: Int) = copy(x = x + amountX, y = y + amountY, z = z + amountZ)
+  fun shiftX(amount: Int) = copy(x = x + amount)
+  fun shiftY(amount: Int) = copy(y = y + amount)
+  fun shiftZ(amount: Int) = copy(z = z + amount)
+  
   fun manhattanDistanceTo(other: Point3D = Point3D(0, 0, 0)): Int =
     abs(x - other.x) + abs(y - other.y) + abs(z - other.z)
 
   fun distanceTo(other: Point3D): Point3D = Point3D(x - other.x, y - other.y, z - other.z)
   fun move(amount: Point3D): Point3D = Point3D(x + amount.x, y + amount.y, z + amount.z)
-  fun neighbors(): List<Point3D> = Companion.translations.map { it(this) }
+  fun neighbors(): List<Point3D> = adjacencyOffsets.map { this + it }
+
+  operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
+  operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, y - other.z)
 
   fun startFloodFill(include: (Point3D) -> Boolean): Set<Point3D> {
     val filled = mutableSetOf<Point3D>()
@@ -83,13 +107,13 @@ data class Point3D(val x: Int, val y: Int, val z: Int) {
 
   companion object {
     val ORIGIN = Point3D(0, 0, 0)
-    private val translations = listOf<(Point3D) -> Point3D>(
-      { point -> point.copy(x = point.x - 1) },
-      { point -> point.copy(x = point.x + 1) },
-      { point -> point.copy(y = point.y - 1) },
-      { point -> point.copy(y = point.y + 1) },
-      { point -> point.copy(z = point.z - 1) },
-      { point -> point.copy(z = point.z + 1) },
+    private val adjacencyOffsets = listOf(
+      ORIGIN.shiftX(-1),
+      ORIGIN.shiftX(1),
+      ORIGIN.shiftY(-1),
+      ORIGIN.shiftY(1),
+      ORIGIN.shiftZ(-1),
+      ORIGIN.shiftZ(1),
     )
   }
 }
@@ -149,22 +173,16 @@ data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
   }
 }
 
+@Deprecated("AoC 2021 only")
 interface Cell {
   val location: Point2D
 }
 
+@Suppress("DEPRECATION")
+@Deprecated("AoC 2021 only")
 interface Topology<T : Cell> {
   val cells: Map<Point2D, T>
 
-  fun get4NeighborsOf(cell: T): List<T> = getNeighborsOf(cell, adjacency4Offsets)
-
-  fun get8NeighborsOf(cell: T): List<T> = getNeighborsOf(cell, adjacency8Offsets)
-
-  private fun getNeighborsOf(cell: T, adjacencyOffsets: List<Pair<Int, Int>>): List<T> = adjacencyOffsets
-    .mapNotNull { (x, y) -> cells[cell.location.copy(x = cell.location.x + x, y = cell.location.y + y)] }
-
-  companion object {
-    private val adjacency4Offsets: List<Pair<Int, Int>> = listOf(-1, 1).cartesianProduct(listOf(-1, 1))
-    private val adjacency8Offsets: List<Pair<Int, Int>> = (-1..1).cartesianProduct(-1..1).minus(0 to 0)
-  }
+  fun get4NeighborsOf(cell: T): List<T> = cell.location.neighbors4().mapNotNull { cells[it] }
+  fun get8NeighborsOf(cell: T): List<T> = cell.location.neighbors8().mapNotNull { cells[it] }
 }
