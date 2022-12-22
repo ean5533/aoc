@@ -12,12 +12,12 @@ data class Point2D(val x: Int, val y: Int) {
   operator fun minus(other: Point2D): Point2D = Point2D(x - other.x, y - other.y)
 
   fun flipY(area: Area2D): Point2D {
-    val offset = (area.bottom + area.top) / 2
+    val offset = (area.maxY + area.minY) / 2
     return copy(y = (y - offset) * -1 + offset + 1)
   }
 
   fun flipX(area: Area2D): Point2D {
-    val offset = (area.left + area.right) / 2
+    val offset = (area.minx + area.maxX) / 2
     return copy(x = (x - offset) * -1 + offset + 1)
   }
 
@@ -47,16 +47,14 @@ data class Area2D(val xRange: IntRange, val yRange: IntRange) {
   constructor(origin: Point2D, size: Int) :
     this(origin.x * size until origin.x * size + size, origin.y * size until origin.y * size + size)
 
-  // TODO (re)move these -- top/bottom (negative/positive y) depends on context
-  val left = xRange.start
-  val right = xRange.endInclusive
-  val top = yRange.start
-  val bottom = yRange.endInclusive
+  val minx = xRange.start
+  val maxX = xRange.endInclusive
+  val minY = yRange.start
+  val maxY = yRange.endInclusive
 
   fun origin(): Point2D = Point2D(xRange.start, yRange.start)
   fun size(): Long = xRange.count().toLong() * yRange.count().toLong()
   fun points(): List<Point2D> = xRange.flatMap { x -> yRange.map { y -> Point2D(x, y) } }
-
   fun contains(x: Int, y: Int) = xRange.contains(x) && yRange.contains(y)
   fun contains(point: Point2D) = xRange.contains(point.x) && yRange.contains(point.y)
 
@@ -107,7 +105,6 @@ data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
   fun origin(): Point3D = Point3D(xRange.start, yRange.start, zRange.start)
   fun size(): Long = xRange.count().toLong() * yRange.count().toLong() * zRange.count().toLong()
   fun points(): List<Point3D> = xRange.flatMap { x -> yRange.flatMap { y -> zRange.map { z -> Point3D(x, y, z) } } }
-
   fun contains(point: Point3D) = xRange.contains(point.x) && yRange.contains(point.y) && zRange.contains(point.z)
 
   fun minus(other: Area3D): List<Area3D> {
