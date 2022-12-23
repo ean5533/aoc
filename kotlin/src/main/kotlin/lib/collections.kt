@@ -116,3 +116,5 @@ fun <T> List<T>.replaceFirst(new: T): List<T> = ArrayList<T>(size).also {
 fun <T> List<T>.replaceFirst(transform: (T) -> T): List<T> = replaceFirst(transform(first()))
 
 fun <T> List<T>.circularGet(index: Int) = get(index.mod(size))
+fun <T> List<T>.rotate(): List<T> = drop(1) + first()
+fun <T> List<T>.moveToEnd(element: T): List<T> = filter { it != element } + element
