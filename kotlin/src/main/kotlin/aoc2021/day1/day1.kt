@@ -2,7 +2,7 @@ package aoc2021.day1
 
 import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 private val numbers: List<Int> = input.lines().map { it.trim().toInt() }
 
 fun main() {

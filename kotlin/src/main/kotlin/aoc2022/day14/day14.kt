@@ -2,7 +2,7 @@ package aoc2022.day14
 
 import lib.*
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 
 fun main() {
     println("part1: " + parseInput().let { Cave(it) }.also { it.fillWithSand() }.sandCount())

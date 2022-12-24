@@ -2,7 +2,7 @@ package aoc2021.day15
 
 import lib.*
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 
 fun main() {

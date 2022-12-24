@@ -3,7 +3,7 @@ package aoc2021.day2.part1
 import lib.loadResourceMatchingPackageName
 import java.lang.RuntimeException
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 private val commands: List<Command> = input.lines().map(Command.Companion::parse)
 
 fun main() {

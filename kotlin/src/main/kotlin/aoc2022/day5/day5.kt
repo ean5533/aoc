@@ -3,7 +3,7 @@ package aoc2022.day5
 import lib.loadResourceMatchingPackageName
 import lib.transpose
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").lines()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).lines()
 
 fun main() {
     val (warehouse, moves) = parseInput()

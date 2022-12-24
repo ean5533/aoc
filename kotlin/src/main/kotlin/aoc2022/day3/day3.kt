@@ -4,7 +4,7 @@ import lib.intersectAll
 import lib.loadResourceMatchingPackageName
 import lib.pair
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 private val scores = (('a'..'z') + ('A'..'Z')).mapIndexed { index, char -> char to (index + 1) }.toMap()
 private val sacks = input.lines().map { it.windowed(it.length / 2, it.length / 2).pair() }
 

@@ -4,7 +4,7 @@ import lib.Point2D
 import lib.loadResourceMatchingPackageName
 import lib.replaceFirst
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 private val moves = input.lines().map { it.split(" ").let { Move(it[0], it[1].toInt()) } }
 
 /**

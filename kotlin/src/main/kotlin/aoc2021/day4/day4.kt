@@ -3,7 +3,7 @@ package aoc2021.day4
 import lib.loadResourceMatchingPackageName
 import java.lang.IllegalArgumentException
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 fun main() {
     val (numbers, boards) = parseInput()

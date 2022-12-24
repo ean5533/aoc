@@ -3,7 +3,7 @@ package aoc2021.day18
 import lib.checkEquals
 import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 
 fun main() {

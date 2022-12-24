@@ -3,7 +3,7 @@ package aoc2022.day20
 import lib.loadResourceMatchingPackageName
 
 private val inputNumbers =
-    loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map { Value(it.toLong()) }
+    loadResourceMatchingPackageName(object {}.javaClass).trim().lines().map { Value(it.toLong()) }
 
 fun main() {
     part1()

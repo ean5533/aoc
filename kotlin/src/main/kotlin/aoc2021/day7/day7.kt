@@ -3,7 +3,7 @@ package aoc2021.day7
 import lib.loadResourceMatchingPackageName
 import kotlin.math.abs
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 fun main() {
     val numbers = input.split(",").map(String::toLong)

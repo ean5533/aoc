@@ -14,7 +14,7 @@ private fun execute(instructions: List<Instruction>, start: State, board: Board)
   instructions.fold(start) { current, instruction -> current.execute(instruction, board) }
 
 private fun parseInput(): Pair<Board, List<Instruction>> {
-  val lines = loadResourceMatchingPackageName(object {}.javaClass, "text/").trimEnd().lines()
+  val lines = loadResourceMatchingPackageName(object {}.javaClass).trimEnd().lines()
 
   val board = lines.dropLast(2).flatMapIndexed { y, line ->
     line.mapIndexedNotNull { x, char ->

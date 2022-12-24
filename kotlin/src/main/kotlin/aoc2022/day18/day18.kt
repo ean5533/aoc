@@ -2,7 +2,7 @@ package aoc2022.day18
 
 import lib.*
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 private val lava = input.lines().map { it.split(",").map { it.toInt() }.toPoint3D() }.let { Lava(it.toSet()) }
 
 fun main() {

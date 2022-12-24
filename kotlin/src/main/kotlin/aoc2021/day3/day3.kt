@@ -3,7 +3,7 @@ package aoc2021.day3
 import lib.loadResourceMatchingPackageName
 
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 private val allBits: List<List<Int>> = input.lines().map { it.trim().toList().map(Char::digitToInt) }
 private val columns = allBits[0].size
 

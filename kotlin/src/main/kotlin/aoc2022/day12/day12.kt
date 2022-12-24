@@ -5,7 +5,7 @@ import lib.aStarSearch
 import lib.loadResourceMatchingPackageName
 import lib.printTimeTaken
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map { it.toList() }
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim().lines().map { it.toList() }
 private val startPosition = findPositionOf('S')
 private val endPosition = findPositionOf('E')
 private val grid = parseGrid()

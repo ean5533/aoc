@@ -2,7 +2,7 @@ package aoc2022.day6
 
 import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().first()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim().lines().first()
 
 fun main() {
     part1()

@@ -7,7 +7,7 @@ fun loadResourceAsString(path: String): String {
   return classLoader.getResource(path)!!.readText()
 }
 
-fun loadResourceMatchingPackageName(javaClass: Class<Any>, prefix: String = ""): String {
+fun loadResourceMatchingPackageName(javaClass: Class<Any>, prefix: String = "text/"): String {
   val path = prefix + javaClass.packageName.replace(".", "/")
   return loadResourceAsString(path)
 }

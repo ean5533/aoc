@@ -27,7 +27,7 @@ private fun exec(rounds: Int, worryDivisor: Int) {
 }
 
 fun parseMonkies(): List<Monkey> {
-    val iterator = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().iterator()
+    val iterator = loadResourceMatchingPackageName(object {}.javaClass).trim().lines().iterator()
 
     return iterator.asSequence().mapNotNull {
         if (it.isEmpty()) return@mapNotNull null

@@ -4,7 +4,7 @@ import lib.cartesianProduct
 import lib.checkEquals
 import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 
 fun main() {

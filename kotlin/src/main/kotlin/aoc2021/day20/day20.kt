@@ -4,7 +4,7 @@ import lib.Point2D
 import lib.cartesianProduct
 import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 private const val DARK = 0
 private const val LIGHT = 1

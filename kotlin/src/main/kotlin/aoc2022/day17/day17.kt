@@ -2,7 +2,7 @@ package aoc2022.day17
 
 import lib.*
 
-val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 val jets = input.map { if (it == '<') -1 else 1 }
 
 fun main() {

@@ -3,7 +3,7 @@ package aoc2021.day14
 import lib.loadResourceMatchingPackageName
 import lib.sumCounts
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 
 fun main() {

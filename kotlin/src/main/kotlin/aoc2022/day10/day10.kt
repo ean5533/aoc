@@ -4,7 +4,7 @@ import lib.loadResourceMatchingPackageName
 import lib.pop
 import lib.push
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 private val instructions = input.lines().map {
     when {
         it == "noop" -> NoOp

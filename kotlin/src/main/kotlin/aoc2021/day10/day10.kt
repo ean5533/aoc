@@ -6,7 +6,7 @@ import lib.pop
 import lib.push
 import kotlin.collections.ArrayDeque
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 private val openToClose = mapOf(
     '(' to ')',

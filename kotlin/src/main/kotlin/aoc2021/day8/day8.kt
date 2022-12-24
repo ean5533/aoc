@@ -3,7 +3,7 @@ package aoc2021.day8
 import lib.intersectAll
 import lib.loadResourceMatchingPackageName
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 private val lettersToDigit = mapOf(
     "abcefg".toSet() to 0,

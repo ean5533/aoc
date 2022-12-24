@@ -44,7 +44,7 @@ private fun part2() {
 private fun parseInput(): List<Blueprint> {
     val regex =
         "Blueprint [0-9]+: Each ore robot costs ([0-9]+) ore. Each clay robot costs ([0-9]+) ore. Each obsidian robot costs ([0-9]+) ore and ([0-9]+) clay. Each geode robot costs ([0-9]+) ore and ([0-9]+) obsidian.".toRegex()
-    return loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map {
+    return loadResourceMatchingPackageName(object {}.javaClass).trim().lines().map {
         regex.matchEntire(it)!!.groupValues.drop(1).map { it.toInt() }
             .let { Blueprint(it[0], it[1], it[2], it[3], it[4], it[5]) }
     }

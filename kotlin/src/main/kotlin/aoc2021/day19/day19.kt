@@ -5,7 +5,7 @@ import lib.cartesianProduct
 import lib.loadResourceMatchingPackageName
 import lib.printTimeTaken
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 fun main() {
     // Scanners with more beacons are more likely to overlap with each other

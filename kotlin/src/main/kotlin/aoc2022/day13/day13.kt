@@ -38,7 +38,7 @@ private object PacketComparator : Comparator<Any> {
 }
 
 private fun parseInput(): List<Pair<List<*>, List<*>>> {
-    return loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().windowed(3, 3, true).map {
+    return loadResourceMatchingPackageName(object {}.javaClass).trim().lines().windowed(3, 3, true).map {
         it.take(2).map { Gson().fromJson(it, List::class.java) }.pair()
     }
 }

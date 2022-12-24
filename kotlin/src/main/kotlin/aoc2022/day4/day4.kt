@@ -5,7 +5,7 @@ import lib.containsAny
 import lib.loadResourceMatchingPackageName
 import lib.pair
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 private val assignments = input.lines()
     .map {
         it.split(",").map {

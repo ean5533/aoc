@@ -15,7 +15,7 @@ fun main() {
 
 private fun parseInput(): Cave {
     val regex = "Valve ([A-Z]+) has flow rate=([0-9]+); tunnels? leads? to valves? (.+)".toRegex()
-    val valvesToChildNames = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map {
+    val valvesToChildNames = loadResourceMatchingPackageName(object {}.javaClass).trim().lines().map {
         val (name, rate, children) = regex.matchEntire(it)!!.groupValues.drop(1)
         Valve(name, rate.toInt()) to children
     }

@@ -4,7 +4,7 @@ import lib.loadResourceMatchingPackageName
 import lib.next
 import lib.takeWhileInclusive
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/")
+private val input = loadResourceMatchingPackageName(object {}.javaClass)
 
 
 fun main() {

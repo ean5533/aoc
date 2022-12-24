@@ -4,7 +4,7 @@ import lib.loadResourceMatchingPackageName
 import lib.takeWhileInclusive
 import lib.transpose
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 private val grid = input.lines().map { it.toList().map { Tree(it.digitToInt()) } }
 
 fun main() {

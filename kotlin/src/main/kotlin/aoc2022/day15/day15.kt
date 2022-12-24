@@ -38,7 +38,7 @@ private fun part2() {
 
 private fun parseInput(): List<Sensor> {
     val regex = "Sensor at x=(-?[0-9]+), y=(-?[0-9]+): closest beacon is at x=(-?[0-9]+), y=(-?[0-9]+)".toRegex()
-    return loadResourceMatchingPackageName(object {}.javaClass, "text/").trim().lines().map {
+    return loadResourceMatchingPackageName(object {}.javaClass).trim().lines().map {
         val (sensorX, sensorY, beaconX, beaconY) = regex.find(it)!!.groupValues.drop(1).map { it.toInt() }
         Sensor(Point2D(sensorX, sensorY), Point2D(beaconX, beaconY))
     }

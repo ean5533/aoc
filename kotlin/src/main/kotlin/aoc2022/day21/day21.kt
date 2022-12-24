@@ -4,7 +4,7 @@ import lib.loadResourceMatchingPackageName
 import java.lang.StringBuilder
 import kotlin.math.absoluteValue
 
-private val input = loadResourceMatchingPackageName(object {}.javaClass, "text/").trim()
+private val input = loadResourceMatchingPackageName(object {}.javaClass).trim()
 
 /**
  * There's a boatload of code in here that was designed to solve this problem the "correct" way (actually solving for X) but that failed, I think due to "big number" precision problems (but I'm not really sure).
