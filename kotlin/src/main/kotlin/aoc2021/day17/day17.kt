@@ -22,16 +22,16 @@ private fun parseInput(): Area2D {
 
 private fun part1(target: Area2D) {
     // The largest Y velocity is the one that will go all the way from START to TARGET AREA BOTTOM in one step (accounting for having one greater velocity due to gravity)
-    val maxPossibleYVelocity = -1 * (target.maxY + 1)
+    val maxPossibleYVelocity = -1 * (target.yMax + 1)
     val totalHeight = (1..maxPossibleYVelocity).sum()
     println("Part 1: $totalHeight")
 }
 
 private fun part2(target: Area2D) {
     // x=sqrt(n) is an extremely rough lower bound on the smallest number where 1+2+..+x can possibly hit n
-    val minPossibleXVelocity = sqrt(target.minx.toDouble()).toInt()
-    val maxPossibleXVelocity = target.maxX
-    val minPossibleYVelocity = target.maxY
+    val minPossibleXVelocity = sqrt(target.xMin.toDouble()).toInt()
+    val maxPossibleXVelocity = target.xMax
+    val minPossibleYVelocity = target.yMax
     val maxPossibleYVelocity = -1 * (minPossibleYVelocity + 1)
 
     val velocitiesThatWillCrossTarget = (minPossibleXVelocity..maxPossibleXVelocity)
@@ -52,7 +52,7 @@ private data class ProbeState(val x: Int, val y: Int, val xVelocity: Int, val yV
     fun step(): ProbeState = ProbeState(x + xVelocity, y + yVelocity, max(xVelocity - 1, 0), yVelocity - 1)
 
     fun isInsideOrApproaching(target: Area2D): Boolean =
-        y >= target.maxY && x <= target.maxX && !(xVelocity == 0 && x < target.minx)
+        y >= target.yMax && x <= target.xMax && !(xVelocity == 0 && x < target.xMin)
 
-    fun isInside(target: Area2D): Boolean = x >= target.minx && x <= target.maxX && y <= target.minY && y >= target.maxY
+    fun isInside(target: Area2D): Boolean = x >= target.xMin && x <= target.xMax && y <= target.yMin && y >= target.yMax
 }

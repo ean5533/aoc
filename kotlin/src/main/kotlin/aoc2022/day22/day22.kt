@@ -70,6 +70,7 @@ private data class State(
 }
 
 private data class Region(val number: Int, val area: Area2D) {
+  constructor(number: Int, size: Int, unscaledOrigin: Point2D): this(number, Area2D(size, unscaledOrigin.scale(size)))
   val origin = area.origin()
 }
 
@@ -111,17 +112,17 @@ private data class Board(val cells: Map<Point2D, Char>, val isCube: Boolean = fa
   private fun buildFunction(regions: Map<Int, Region>, a: Int, b: Int, fn: (Point2D) -> Point2D): (Point2D) -> Point2D =
     { (it - regions[a]!!.origin).let { fn(it) } + regions[b]!!.origin }
 
-  private val originArea = Area2D(Point2D(0, 0), regionSize)
+  private val originArea = Area2D(regionSize, Point2D(0, 0))
   private val regionsToEdgeFunctions: Map<Region, Map<Point2D, Pair<Point2D, (Point2D) -> Point2D>>> by lazy {
     // Cheat cheat cheat cheat. Not sure how to generate this programmatically yet.
     if (regionSize == 4) {
       val regions = listOf(
-        Region(1, Area2D(Point2D(2, 0), regionSize)),
-        Region(2, Area2D(Point2D(0, 1), regionSize)),
-        Region(3, Area2D(Point2D(1, 1), regionSize)),
-        Region(4, Area2D(Point2D(2, 1), regionSize)),
-        Region(5, Area2D(Point2D(2, 2), regionSize)),
-        Region(6, Area2D(Point2D(3, 2), regionSize)),
+        Region(1, regionSize, Point2D(2, 0)),
+        Region(2, regionSize, Point2D(0, 1)),
+        Region(3, regionSize, Point2D(1, 1)),
+        Region(4, regionSize, Point2D(2, 1)),
+        Region(5, regionSize, Point2D(2, 2)),
+        Region(6, regionSize, Point2D(3, 2)),
       ).associateBy { it.number }
       regions.values.associate { region ->
         when (region.number) {
@@ -156,12 +157,12 @@ private data class Board(val cells: Map<Point2D, Char>, val isCube: Boolean = fa
       }
     } else {
       val regions = listOf(
-        Region(1, Area2D(Point2D(1, 0), regionSize)),
-        Region(2, Area2D(Point2D(2, 0), regionSize)),
-        Region(3, Area2D(Point2D(1, 1), regionSize)),
-        Region(4, Area2D(Point2D(0, 2), regionSize)),
-        Region(5, Area2D(Point2D(1, 2), regionSize)),
-        Region(6, Area2D(Point2D(0, 3), regionSize)),
+        Region(1, regionSize, Point2D(1, 0)),
+        Region(2, regionSize, Point2D(2, 0)),
+        Region(3, regionSize, Point2D(1, 1)),
+        Region(4, regionSize, Point2D(0, 2)),
+        Region(5, regionSize, Point2D(1, 2)),
+        Region(6, regionSize, Point2D(0, 3)),
       ).associateBy { it.number }
       regions.values.associate { region ->
         when (region.number) {

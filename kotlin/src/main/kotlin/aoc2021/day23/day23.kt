@@ -60,7 +60,7 @@ private fun insert(toInsert: String, original: String): String =
     (original.lines().take(3) + toInsert.lines() + original.lines().drop(3)).joinToString("\n")
 
 private fun solve(building: Building): lib.SearchState<Building> {
-    class SearchState(current: Building, override val cost: Int): lib.SearchState<Building>(current) {
+    class SearchState(override val current: Building, override val cost: Int): lib.SearchState<Building> {
         override fun isSolution(): Boolean = current.allHome()
 
         override fun getNextStates(): List<SearchState> =

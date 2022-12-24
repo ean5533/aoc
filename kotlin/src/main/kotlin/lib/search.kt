@@ -10,11 +10,12 @@ import java.util.*
  * Storing additional information in the search state (such as the complete path needed to arrive at some state) is not necessary, but callers
  * may do so if it satisfies their needs.
  */
-abstract class SearchState<T>(val current: T) {
-  abstract val cost: Int
-  abstract fun getNextStates(): List<SearchState<T>>
-  abstract fun isSolution(): Boolean
-  open fun distanceHeuristic(): Int = 0
+interface SearchState<T> {
+  val current: T
+  val cost: Int
+  fun getNextStates(): List<SearchState<T>>
+  fun isSolution(): Boolean
+  fun distanceHeuristic(): Int = 0
 }
 
 /**
@@ -24,7 +25,7 @@ abstract class SearchState<T>(val current: T) {
  */
 fun <T, S : SearchState<T>> aStarSearch(initialState: S): S? {
   val queue = PriorityQueue<S>(compareBy({ it.cost + it.distanceHeuristic() })).also { it.add(initialState) }
-  val seenToLowestCost = mutableMapOf(initialState.current to 0)
+  val seenToLowestCost = mutableMapOf(initialState.current to initialState.cost)
 
   while (queue.isNotEmpty()) {
     val state = queue.remove()
@@ -57,7 +58,7 @@ fun <T, S : SearchState<T>> aStarSearch(initialState: S): S? {
  * Additionally, creating your own SearchState allows you to customize what data will be in the final search state (e.g. for retaining intermediate states or deltas or anything else).
  *
  * @param initialState The starting point for the search
- * @param getNextStates A function that produces the next set  of possible states (plus the cost to get there) from some input state
+ * @param getNextStates A function that produces the next set of possible states (plus the cost to get there) from some input state
  * @param isSolution A function that returns whether or not a given state is a valid solution state.
  * @param retainIntermediateStates If true, results will contain all intermediate states needed to achieve result. Drastically increases memory footprint, but useful for debugging.
  */
@@ -84,13 +85,13 @@ fun <T> aStarSearch(
  * A search state that retains the path that was followed to arrive at it
  */
 class PathSearchState<T>(
-  currentState: T,
+  override val current: T,
   val getNextStates: (T) -> List<Pair<T, Int>>,
   val isSolution: (T) -> Boolean,
   val distanceHeuristic: (T) -> Int = { 0 },
   val retainIntermediateStates: Boolean = false,
   val steps: List<PathStep<T>>,
-) : SearchState<T>(currentState) {
+) : SearchState<T> {
   override val cost = steps.sumOf { it.cost }
 
   override fun getNextStates(): List<SearchState<T>> {

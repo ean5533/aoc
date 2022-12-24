@@ -44,8 +44,8 @@ private fun parseGrid(): List<List<Int>> = input.map {
     }
 }
 
-private class ForwardSearchState(current: Point2D, override val cost: Int = 0) :
-    SearchState<Point2D>(current) {
+private class ForwardSearchState(override val current: Point2D, override val cost: Int = 0) :
+    SearchState<Point2D> {
 
     override fun getNextStates(): List<SearchState<Point2D>> =
         getNextPositions(current) { height(current) + 1 >= height(it) }
@@ -54,8 +54,8 @@ private class ForwardSearchState(current: Point2D, override val cost: Int = 0) :
     override fun isSolution(): Boolean = current == endPosition
 }
 
-private class ReverseSearchState(current: Point2D, override val cost: Int = 0) :
-    SearchState<Point2D>(current) {
+private class ReverseSearchState(override val current: Point2D, override val cost: Int = 0) :
+    SearchState<Point2D> {
 
     override fun getNextStates(): List<SearchState<Point2D>> =
         getNextPositions(current) { height(current) - 1 <= height(it) }

@@ -6,9 +6,20 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 data class Point2D(val x: Int, val y: Int) {
+  fun scale(scalar: Int) = copy(x = x * scalar, y = y * scalar)
   fun shift(amountX: Int, amountY: Int) = copy(x = x + amountX, y = y + amountY)
   fun shiftX(amount: Int) = copy(x = x + amount)
   fun shiftY(amount: Int) = copy(y = y + amount)
+  fun moveWithin(area: Area2D, move: Point2D): Point2D = (this + move).let {
+    when {
+      it.x < area.xMin -> it.copy(x = area.xMax)
+      it.x > area.xMax -> it.copy(x = area.xMin)
+      it.y < area.yMin -> it.copy(y = area.yMax)
+      it.y > area.yMax -> it.copy(y = area.yMin)
+      else -> it
+    }
+  }
+
   fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
   fun neighbors4(): List<Point2D> = adjacency4Offsets.map { this + it }
   fun neighbors8(): List<Point2D> = adjacency8Offsets.map { this + it }
@@ -18,12 +29,12 @@ data class Point2D(val x: Int, val y: Int) {
   operator fun rangeTo(other: Point2D) = Line2D(this, other)
 
   fun flipY(area: Area2D): Point2D {
-    val offset = (area.maxY + area.minY) / 2
+    val offset = (area.yMax + area.yMin) / 2
     return copy(y = (y - offset) * -1 + offset + 1)
   }
 
   fun flipX(area: Area2D): Point2D {
-    val offset = (area.minx + area.maxX) / 2
+    val offset = (area.xMin + area.xMax) / 2
     return copy(x = (x - offset) * -1 + offset + 1)
   }
 
@@ -33,7 +44,8 @@ data class Point2D(val x: Int, val y: Int) {
   override fun toString(): String = "[x:$x, y:$y]"
 
   companion object {
-    private val adjacency4Offsets: List<Point2D> = listOf(-1, 1).cartesianProduct(listOf(-1, 1)).map { it.toPoint2D() }
+    val ORIGIN = Point2D(0, 0)
+    private val adjacency4Offsets: List<Point2D> = listOf(Point2D(0, 1), Point2D(0, -1), Point2D(1, 0), Point2D(-1, 0))
     private val adjacency8Offsets: List<Point2D> = (-1..1).cartesianProduct(-1..1).minus(0 to 0).map { it.toPoint2D() }
   }
 }
@@ -60,13 +72,16 @@ data class Line2D(val start: Point2D, val end: Point2D) {
 }
 
 data class Area2D(val xRange: IntRange, val yRange: IntRange) {
-  constructor(origin: Point2D, size: Int) :
-    this(origin.x * size until origin.x * size + size, origin.y * size until origin.y * size + size)
+  constructor(size: Int, origin: Point2D = Point2D.ORIGIN) : this(size, size, origin)
+  constructor(width: Int, height: Int, origin: Point2D = Point2D.ORIGIN) :
+    this(origin.x until origin.x + width, origin.y until origin.y + height)
 
-  val minx = xRange.start
-  val maxX = xRange.endInclusive
-  val minY = yRange.start
-  val maxY = yRange.endInclusive
+  val xMin = xRange.start
+  val xMax = xRange.endInclusive
+  val yMin = yRange.start
+  val yMax = yRange.endInclusive
+  val width = xMax - xMin + 1
+  val height = yMax - yMin + 1
 
   fun origin(): Point2D = Point2D(xRange.start, yRange.start)
   fun size(): Long = xRange.count().toLong() * yRange.count().toLong()
@@ -85,7 +100,7 @@ data class Point3D(val x: Int, val y: Int, val z: Int) {
   fun shiftX(amount: Int) = copy(x = x + amount)
   fun shiftY(amount: Int) = copy(y = y + amount)
   fun shiftZ(amount: Int) = copy(z = z + amount)
-  
+
   fun manhattanDistanceTo(other: Point3D = Point3D(0, 0, 0)): Int =
     abs(x - other.x) + abs(y - other.y) + abs(z - other.z)
 
