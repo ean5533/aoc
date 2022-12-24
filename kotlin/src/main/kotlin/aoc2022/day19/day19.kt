@@ -134,9 +134,9 @@ private data class ResourceState(
             ),
         )
             .filter { it.ore >= 0 && it.clay >= 0 && it.obsidian >= 0 && it.geode >= 0 } // don't overspend
-            .filter { it.oreBot + it.oreBotsIncoming <= it.blueprint.oreMaxCost } // don't prouce more ore than we can spend in a turn
-            .filter { it.clayBot + it.clayBotsIncoming <= it.blueprint.clayMaxCost } // don't prouce mclay clay than we can spend in a turn
-            .filter { it.obsidianBot + it.obsidianBotsIncoming <= it.blueprint.obsidianMaxCost } // don't prouce mobsidian obsidian than we can spend in a turn
+            .filter { it.oreBot + it.oreBotsIncoming <= it.blueprint.oreMaxCost } // don't produce more ore than we can spend in a turn
+            .filter { it.clayBot + it.clayBotsIncoming <= it.blueprint.clayMaxCost } // don't produce more clay than we can spend in a turn
+            .filter { it.obsidianBot + it.obsidianBotsIncoming <= it.blueprint.obsidianMaxCost } // don't produce more obsidian than we can spend in a turn
             .map { it.tick() }
     }
 }

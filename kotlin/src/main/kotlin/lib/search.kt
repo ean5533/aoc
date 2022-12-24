@@ -108,8 +108,8 @@ class PathSearchState<T>(
     }
   }
 
-  override val isSolution by lazy{ getIsSolution(current)  }
-  override val distanceHeuristic by lazy {    getDistanceHeuristic(current)  }
+  override val isSolution by lazy { getIsSolution(current) }
+  override val distanceHeuristic by lazy { getDistanceHeuristic(current) }
 }
 
 data class PathStep<out T>(val cost: Int, val maybeState: T?)
@@ -120,8 +120,15 @@ data class PathStep<out T>(val cost: Int, val maybeState: T?)
  * This algorithm is some sort of weird bastardization of A* search, I think? I don't know, I didn't investigate existing algorithms, I just made up something that worked for the use case.
  *
  * This algorithm does not step after finding a path to some terminal state; it will keep searching other paths under the assumption that a higher scoring path to some other terminal state may exist. The algorithm uses provided heuristics to decide which paths to check first and which paths can be short-circuited. The closer these heuristics match the true score of the optimal path, the faster it will perform.
+ *
+ * @param trimStates If true, previously seen states will be actively discarded if they are known to never lead to a valid solution. This reduces overall memory usage at the cost of more CPU cycles (and thus wallclock time).
+ * @param printSolutions If true, every solution found will be printed as it is found. Useful for debugging.
  */
-fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
+fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(
+  initialState: S,
+  trimStates: Boolean = false,
+  printSolutions: Boolean = false,
+): S {
   val queue = PriorityQueue<S>(compareByDescending({ it.score + it.estimatedScoreToOptimalTermination }))
     .also { it.add(initialState) }
   val seenToHighestScoreState = mutableMapOf(initialState.stateIdentity to initialState)
@@ -131,9 +138,11 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
     val state = queue.remove()
     if (state.isTerminal) {
       bestTerminalScoreFound = if (state.score > bestTerminalScoreFound) {
-        // This is only necessary to control memory buildup. It's quite wasteful, CPU cycles-wise
-        queue.removeIf { it.score + it.terminationScoreUpperBound <= state.score }
-        seenToHighestScoreState.entries.removeIf { it.value.score + it.value.terminationScoreUpperBound < state.score }
+        if (trimStates) {
+          queue.removeIf { it.score + it.terminationScoreUpperBound <= state.score }
+          seenToHighestScoreState.entries.removeIf { it.value.score + it.value.terminationScoreUpperBound < state.score }
+        }
+        if (printSolutions) println(state.score)
         state.score
       } else bestTerminalScoreFound
 
@@ -148,21 +157,13 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
     nextStates
       .filter { nextState ->
         // Only keep searching if we have found a cheaper path to a previously found state
-        (seenToHighestScoreState[nextState.stateIdentity]?.let { nextState.score > it.score } ?: true) &&
-          nextState.score + nextState.terminationScoreUpperBound > bestTerminalScoreFound
+        seenToHighestScoreState[nextState.stateIdentity]?.let { nextState.score > it.score } ?: true
       }
       .forEach { nextState ->
         @Suppress("UNCHECKED_CAST")
         queue.add(nextState as S)
         seenToHighestScoreState[nextState.stateIdentity] = nextState
       }
-
-//        if(queue.size > 10000 && bestTerminalScoreFound < Int.MAX_VALUE) {
-////            queue.take(1000).filter { it.score + it.terminationScoreUpperBound <= bestTerminalScoreFound }.forEach { queue.remove(it) }
-//            queue.removeIf { it.score + it.terminationScoreUpperBound <= bestTerminalScoreFound }
-//            if(queue.size > 10000)
-//                println("Failed to trim down below 10000, this is a bad sign...")
-//        }
   }
 
   return seenToHighestScoreState.filter { it.value.isTerminal }.maxBy { it.value.score }.value

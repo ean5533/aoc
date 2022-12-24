@@ -2,13 +2,20 @@ package aoc2022.day16.part2
 
 import lib.*
 
+/**
+ * A solution that works for part 1 and part 2... sort of.
+ * 
+ * It's a much slower solution to part 1, because it has to keep far more states. The other part 1 solution just keeps the states between valves being opened (2+ minutes covered by each state), whereas this one keeps a state for every single minute.
+ * 
+ * It can mostly solve part 2. It takes about 5 seconds to discover the actual optimal solution, but it never finishes deciding that it's the most optimal solution before it eventually blows out the heap.
+ * 
+ */
 fun main() {
     val cave = parseInput()
 
     printTimeTaken {
         val caveState = CaveState(cave)
         val searchResult = bestScoreSearch(CaveSearchState(caveState))
-        val history = searchResult.current.orderedStateHistory()
         println("Part1: " + searchResult.current.potentialPressureReleased)
     }
     printTimeTaken {
@@ -17,7 +24,7 @@ fun main() {
             minutesLeft = 26,
             workers = listOf(WorkerState(cave.start, "You"), WorkerState(cave.start, "Elephant"))
         )
-        val searchresult = bestScoreSearch(CaveSearchState(caveState))
+        val searchresult = bestScoreSearch(CaveSearchState(caveState), trimStates = true, printSolutions = true)
         println("Part2: " + searchresult.current.potentialPressureReleased)
     }
 }
@@ -30,9 +37,7 @@ private fun parseInput(): Cave {
     }
 
     val valves = valvesToChildNames.associate { it.first.name to it.first }
-    val tunnels = valvesToChildNames.associate {
-        it.first to it.second.split(", ").map { valves[it]!! }
-    }
+    val tunnels = valvesToChildNames.associate { it.first to it.second.split(", ").map { valves[it]!! } }
 
     return Cave(valves["AA"]!!, tunnels)
 }
@@ -85,11 +90,10 @@ private data class CaveState(
     val potentialPressureReleased: Int = 0,
     val valveStates: Map<Valve, ValveState> = cave.tunnels.keys.associateWith { ValveState() },
     val teleporting: Boolean = false,
-    val prior: CaveState? = null,
 ) {
     val unoccupiedWorkers = workers.filter { it.timeUntilOpen <= 0 }
     val openableValves =
-        valveStates.filter { !it.value.open && it.key.flowRate > 0 && !workers.any { worker -> worker.position == it.key } }
+        valveStates.filter { !it.value.open && it.key.flowRate > 0 && !workers.any { (position) -> position == it.key } }
 
     val nextStates by lazy {
         if (minutesLeft <= 0) return@lazy listOf()
@@ -121,10 +125,7 @@ private data class CaveState(
         val timeUntilOpen = if (teleporting) 1 else cave.shortestPath(workerState.position, valve).size + 1
         val newWorkerState = workerState.copy(position = valve, timeUntilOpen = timeUntilOpen)
 
-        return copy(
-            workers = (workers - workerState) + newWorkerState,
-            prior = this
-        )
+        return copy(workers = (workers - workerState) + newWorkerState)
     }
 
     private fun bestValve(workerState: WorkerState) =
@@ -142,11 +143,8 @@ private data class CaveState(
             workers = newWorkers,
             potentialPressureReleased = newPressureReleased,
             valveStates = newValveStates,
-            prior = this
         )
     }
-
-    fun orderedStateHistory(): List<CaveState> = (prior?.orderedStateHistory() ?: listOf()) + this
 
     override fun toString(): String =
         "CaveState(${workers}, $minutesLeft, $potentialPressureReleased, ${valveStates.map { (valve, state) -> "${valve.name}: ${if (state.open) "open" else "closed"}" }})"

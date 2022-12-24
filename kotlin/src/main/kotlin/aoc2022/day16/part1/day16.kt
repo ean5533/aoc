@@ -1,21 +1,23 @@
-package aoc2022.day16
+package aoc2022.day16.part1
 
 import lib.*
 
+/**
+ * A solution only to part 1. Can't be reasonably adapted to solve part 2 because it heavily depends on a single worker.
+ */
 fun main() {
     val cave = parseInput()
     val caveState = CaveState(cave)
 
     printTimeTaken {
         val exhaustiveSearch = bestScoreSearch(CaveSearchState(caveState))
-        val history = exhaustiveSearch.current.orderedStateHistory()
         println("Part1: " + exhaustiveSearch.current.potentialPressureReleased)
     }
 }
 
 private fun parseInput(): Cave {
     val regex = "Valve ([A-Z]+) has flow rate=([0-9]+); tunnels? leads? to valves? (.+)".toRegex()
-    val valvesToChildNames = loadResourceMatchingPackageName(object {}.javaClass).trim().lines().map {
+    val valvesToChildNames = loadResourceAsString("text/aoc2022/day16").trim().lines().map {
         val (name, rate, children) = regex.matchEntire(it)!!.groupValues.drop(1)
         Valve(name, rate.toInt()) to children
     }
@@ -68,7 +70,6 @@ private data class CaveState(
     val minutesLeft: Int = 30,
     val potentialPressureReleased: Int = 0,
     val valveStates: Map<Valve, ValveState> = cave.tunnels.keys.associateWith { ValveState() },
-    val prior: CaveState? = null
 ) {
     val nextStates by lazy {
         valveStates.keys
@@ -89,14 +90,11 @@ private data class CaveState(
             minutesLeft = newMinutesLeft,
             valveStates = valveStates + (valve to valveStates[valve]!!.copy(open = true)),
             potentialPressureReleased = potentialPressureReleased + newMinutesLeft * valve.flowRate,
-            prior = this
         )
     }
 
     fun moveToAndOpenBestClosedValve(): CaveState =
         remainingValvesByPotentialPressureReleased.maxBy { it.second }.first.let { moveToAndOpenValve(it) }
-
-    fun orderedStateHistory(): List<CaveState> = (prior?.orderedStateHistory() ?: listOf()) + this
 
     override fun toString(): String =
         "CaveState(${current.name}, $minutesLeft, $potentialPressureReleased, ${valveStates.map { (valve, state) -> "${valve.name}: ${if (state.open) "open" else "closed"}" }})"
