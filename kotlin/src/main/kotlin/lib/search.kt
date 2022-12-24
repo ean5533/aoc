@@ -13,9 +13,9 @@ import java.util.*
 interface SearchState<T> {
   val current: T
   val cost: Int
-  fun getNextStates(): List<SearchState<T>>
-  fun isSolution(): Boolean
-  fun distanceHeuristic(): Int = 0
+  val nextStates: List<SearchState<T>>
+  val isSolution: Boolean
+  val distanceHeuristic: Int get() = 0
 }
 
 /**
@@ -24,16 +24,16 @@ interface SearchState<T> {
  * @param initialState The starting point for the search
  */
 fun <T, S : SearchState<T>> aStarSearch(initialState: S): S? {
-  val queue = PriorityQueue<S>(compareBy({ it.cost + it.distanceHeuristic() })).also { it.add(initialState) }
+  val queue = PriorityQueue<S>(compareBy({ it.cost + it.distanceHeuristic })).also { it.add(initialState) }
   val seenToLowestCost = mutableMapOf(initialState.current to initialState.cost)
 
   while (queue.isNotEmpty()) {
     val state = queue.remove()
-    if (state.isSolution()) {
+    if (state.isSolution) {
       return state
     }
 
-    val nextStates = state.getNextStates()
+    val nextStates = state.nextStates
 
     nextStates
       // Only keep searching if we have found a cheaper path to a previously found state
@@ -87,34 +87,29 @@ fun <T> aStarSearch(
 class PathSearchState<T>(
   override val current: T,
   val getNextStates: (T) -> List<Pair<T, Int>>,
-  val isSolution: (T) -> Boolean,
-  val distanceHeuristic: (T) -> Int = { 0 },
+  val getIsSolution: (T) -> Boolean,
+  val getDistanceHeuristic: (T) -> Int = { 0 },
   val retainIntermediateStates: Boolean = false,
   val steps: List<PathStep<T>>,
 ) : SearchState<T> {
   override val cost = steps.sumOf { it.cost }
 
-  override fun getNextStates(): List<SearchState<T>> {
-    return getNextStates(current).map { (nextState, cost) ->
+  override val nextStates: List<SearchState<T>> by lazy {
+    getNextStates(current).map { (nextState, cost) ->
       val maybeIntermediateState = if (retainIntermediateStates) nextState else null
       PathSearchState(
         nextState,
         getNextStates,
-        isSolution,
-        distanceHeuristic,
+        getIsSolution,
+        getDistanceHeuristic,
         retainIntermediateStates,
         steps + PathStep(cost, maybeIntermediateState)
       )
     }
   }
 
-  override fun isSolution(): Boolean {
-    return isSolution(current)
-  }
-
-  override fun distanceHeuristic(): Int {
-    return distanceHeuristic(current)
-  }
+  override val isSolution by lazy{ getIsSolution(current)  }
+  override val distanceHeuristic by lazy {    getDistanceHeuristic(current)  }
 }
 
 data class PathStep<out T>(val cost: Int, val maybeState: T?)
@@ -129,12 +124,12 @@ data class PathStep<out T>(val cost: Int, val maybeState: T?)
 fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
   val queue = PriorityQueue<S>(compareByDescending({ it.score + it.estimatedScoreToOptimalTermination }))
     .also { it.add(initialState) }
-  val seenToHighestScoreState = mutableMapOf(initialState.stateIdentity() to initialState)
+  val seenToHighestScoreState = mutableMapOf(initialState.stateIdentity to initialState)
   var bestTerminalScoreFound: Int = Int.MIN_VALUE
 
   while (queue.isNotEmpty()) {
     val state = queue.remove()
-    if (state.isTerminal()) {
+    if (state.isTerminal) {
       bestTerminalScoreFound = if (state.score > bestTerminalScoreFound) {
         // This is only necessary to control memory buildup. It's quite wasteful, CPU cycles-wise
         queue.removeIf { it.score + it.terminationScoreUpperBound <= state.score }
@@ -148,18 +143,18 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
       continue // This path can never lead to a better solution
     }
 
-    val nextStates = state.getNextStates()
+    val nextStates = state.nextStates
 
     nextStates
       .filter { nextState ->
         // Only keep searching if we have found a cheaper path to a previously found state
-        (seenToHighestScoreState[nextState.stateIdentity()]?.let { nextState.score > it.score } ?: true) &&
+        (seenToHighestScoreState[nextState.stateIdentity]?.let { nextState.score > it.score } ?: true) &&
           nextState.score + nextState.terminationScoreUpperBound > bestTerminalScoreFound
       }
       .forEach { nextState ->
         @Suppress("UNCHECKED_CAST")
         queue.add(nextState as S)
-        seenToHighestScoreState[nextState.stateIdentity()] = nextState
+        seenToHighestScoreState[nextState.stateIdentity] = nextState
       }
 
 //        if(queue.size > 10000 && bestTerminalScoreFound < Int.MAX_VALUE) {
@@ -170,26 +165,25 @@ fun <T, I, S : BestScoreSearchState<T, I>> bestScoreSearch(initialState: S): S {
 //        }
   }
 
-  return seenToHighestScoreState.filter { it.value.isTerminal() }.maxBy { it.value.score }.value
+  return seenToHighestScoreState.filter { it.value.isTerminal }.maxBy { it.value.score }.value
 }
 
 /**
  * @property score The total score from reaching this state
  * @property estimatedScoreToOptimalTermination A guess as to the final score gained to reach a terminal state from this state. The closer this is to the true score, the faster the optimal solution will be found.
  * @property terminationScoreUpperBound An upper bound to the possible score gained after reaching a terminal state from this state (e.g. every path to the destination will score at most this much). The closer this is to the true score, the faster the optimal solution will be found. Must never be lower than the true best score, or else the algorithm may provide incorrect (suboptimal) results.
- * @property getNextStates Produces the next set of possible states from some input state
+ * @property nextStates Produces the next set of possible states from some input state
  * @property isTerminal Decides if a search state is a terminal (ending) state.
  * @property stateIdentity Provides a unique representation of this state for purposes of avoiding checking the same state twice.
  * @param T The type of state being searched
  * @param I The type of the unique identity of the state being searched (which may be the same as the state itself)
  */
-abstract class BestScoreSearchState<T, I>(val current: T) {
-  abstract val score: Int
-  abstract val estimatedScoreToOptimalTermination: Int
-  abstract val terminationScoreUpperBound: Int
-  abstract fun getNextStates(): List<BestScoreSearchState<T, I>>
-  abstract fun isTerminal(): Boolean
-  abstract fun stateIdentity(): I
-  override fun toString(): String =
-    "score: $score, estimatedScoreToOptimalTermination: $estimatedScoreToOptimalTermination, terminationScoreUpperBound: $terminationScoreUpperBound -- $current"
+interface BestScoreSearchState<T, I> {
+  val current: T
+  val score: Int
+  val estimatedScoreToOptimalTermination: Int
+  val terminationScoreUpperBound: Int
+  val nextStates: List<BestScoreSearchState<T, I>>
+  val isTerminal: Boolean
+  val stateIdentity: I
 }

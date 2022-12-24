@@ -37,8 +37,8 @@ private fun parseInput(): Cave {
     return Cave(valves["AA"]!!, tunnels)
 }
 
-private class CaveSearchState(current: CaveState) :
-    BestScoreSearchState<CaveState, Triple<Map<Valve, ValveState>, List<WorkerState>, Int>>(current) {
+private class CaveSearchState(override val current: CaveState) :
+    BestScoreSearchState<CaveState, Triple<Map<Valve, ValveState>, List<WorkerState>, Int>> {
     override val score: Int = current.potentialPressureReleased
 
     override val estimatedScoreToOptimalTermination: Int by lazy {
@@ -55,12 +55,9 @@ private class CaveSearchState(current: CaveState) :
     private fun guessBestScore(state: CaveState) = (generateSequence(state) { it.bestMoveEducatedGuess }
         .takeWhile { it.minutesLeft >= 0 }.lastOrNull() ?: state).potentialPressureReleased
 
-    override fun getNextStates() = current.nextStates.map { CaveSearchState(it) }
-
-    override fun isTerminal(): Boolean = current.minutesLeft == 0
-
-    override fun stateIdentity(): Triple<Map<Valve, ValveState>, List<WorkerState>, Int> =
-        Triple(current.valveStates, current.workers, current.minutesLeft)
+    override val nextStates by lazy { current.nextStates.map { CaveSearchState(it) } }
+    override val isTerminal = current.minutesLeft == 0
+    override val stateIdentity by lazy { Triple(current.valveStates, current.workers, current.minutesLeft) }
 }
 
 private data class Valve(val name: String, val flowRate: Int)

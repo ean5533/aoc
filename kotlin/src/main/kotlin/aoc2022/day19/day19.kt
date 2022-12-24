@@ -50,7 +50,7 @@ private fun parseInput(): List<Blueprint> {
     }
 }
 
-private class GeodeSearchState(current: ResourceState) : BestScoreSearchState<ResourceState, ResourceState>(current) {
+private class GeodeSearchState(override val current: ResourceState) : BestScoreSearchState<ResourceState, ResourceState> {
     override val score: Int = current.geode
 
     // All current geode bots produce geodes until time runs out
@@ -59,12 +59,9 @@ private class GeodeSearchState(current: ResourceState) : BestScoreSearchState<Re
     // All the current geode bots, plus a new geode bot every minute, all producing a geodes until time runs out
     override val terminationScoreUpperBound: Int = (current.geodeBot..current.timeLeft + current.geodeBot).sumOf { it }
 
-    override fun getNextStates(): List<BestScoreSearchState<ResourceState, ResourceState>> =
-        current.nextAvailableMoves().map { GeodeSearchState(it) }
-
-    override fun isTerminal(): Boolean = current.timeLeft == 0
-
-    override fun stateIdentity(): ResourceState = current
+    override val nextStates by lazy { current.nextAvailableMoves().map { GeodeSearchState(it) } }
+    override val isTerminal = current.timeLeft == 0
+    override val stateIdentity: ResourceState = current
 }
 
 private data class Blueprint(

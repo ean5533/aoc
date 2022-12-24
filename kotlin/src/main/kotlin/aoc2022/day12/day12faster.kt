@@ -47,19 +47,19 @@ private fun parseGrid(): List<List<Int>> = input.map {
 private class ForwardSearchState(override val current: Point2D, override val cost: Int = 0) :
     SearchState<Point2D> {
 
-    override fun getNextStates(): List<SearchState<Point2D>> =
-        getNextPositions(current) { height(current) + 1 >= height(it) }
-            .map { ForwardSearchState(it, cost + 1) }
-
-    override fun isSolution(): Boolean = current == endPosition
+    override val nextStates by lazy {
+        getNextPositions(current) { height(current) + 1 >= height(it) }.map { ForwardSearchState(it, cost + 1) }
+    }
+    
+    override val isSolution = current == endPosition
 }
 
 private class ReverseSearchState(override val current: Point2D, override val cost: Int = 0) :
     SearchState<Point2D> {
 
-    override fun getNextStates(): List<SearchState<Point2D>> =
-        getNextPositions(current) { height(current) - 1 <= height(it) }
-            .map { ReverseSearchState(it, cost + 1) }
-
-    override fun isSolution(): Boolean = height(current) == 'a'.code
+    override val nextStates by lazy {
+        getNextPositions(current) { height(current) - 1 <= height(it) }.map { ReverseSearchState(it, cost + 1) }
+    }
+    
+    override val isSolution = height(current) == 'a'.code
 }

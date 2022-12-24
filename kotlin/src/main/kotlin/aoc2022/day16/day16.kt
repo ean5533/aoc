@@ -28,8 +28,8 @@ private fun parseInput(): Cave {
     return Cave(valves["AA"]!!, tunnels)
 }
 
-private class CaveSearchState(current: CaveState) :
-    BestScoreSearchState<CaveState, Pair<Map<Valve, ValveState>, Valve>>(current) {
+private class CaveSearchState(override val current: CaveState) :
+    BestScoreSearchState<CaveState, Pair<Map<Valve, ValveState>, Valve>> {
     override val score: Int = current.potentialPressureReleased
 
     override val estimatedScoreToOptimalTermination: Int by lazy {
@@ -43,11 +43,9 @@ private class CaveSearchState(current: CaveState) :
         current.remainingValvesByPotentialPressureReleased.filter{it.second > 0}.sumOf { it.second }
     }
 
-    override fun getNextStates() = current.nextStates.map { CaveSearchState(it) }
-
-    override fun isTerminal(): Boolean = current.minutesLeft == 0
-
-    override fun stateIdentity(): Pair<Map<Valve, ValveState>, Valve> = current.valveStates to current.current
+    override val nextStates by lazy { current.nextStates.map { CaveSearchState(it) } }
+    override val isTerminal = current.minutesLeft == 0
+    override val stateIdentity: Pair<Map<Valve, ValveState>, Valve> by lazy { current.valveStates to current.current }
 }
 
 private data class Valve(val name: String, val flowRate: Int)

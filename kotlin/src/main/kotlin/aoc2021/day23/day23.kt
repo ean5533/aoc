@@ -61,10 +61,8 @@ private fun insert(toInsert: String, original: String): String =
 
 private fun solve(building: Building): lib.SearchState<Building> {
     class SearchState(override val current: Building, override val cost: Int): lib.SearchState<Building> {
-        override fun isSolution(): Boolean = current.allHome()
-
-        override fun getNextStates(): List<SearchState> =
-            current.getNextStates().map { SearchState(it.first, cost + it.second) }
+        override val isSolution = current.allHome()
+        override val nextStates by lazy { current.getNextStates().map { SearchState(it.first, cost + it.second) } }
     }
 
     return aStarSearch(SearchState(building, 0)) ?: throw IllegalStateException("Could not find a solution")

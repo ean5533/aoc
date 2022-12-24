@@ -14,7 +14,7 @@ private lateinit var valley: Valley
 fun main() {
   printTimeTaken {
     valley = parseInput()
-    println("input parsed")
+    println("input parsed and blizzards precalculated")
   }
 
   lateinit var step1: ValleySearchState
@@ -65,16 +65,16 @@ private data class ValleySearchState(
   override val cost: Int = 0,
   val goal: Point2D = valley.end,
 ) : SearchState<ValleyState> {
-  override fun getNextStates(): List<SearchState<ValleyState>> {
+  override val nextStates: List<SearchState<ValleyState>> by lazy {
     val newBlizzardNumber = (current.blizzardConfigurationNumber + 1).mod(valley.blizzardConfigurations.size)
     val newBlizzards = valley.blizzardConfigurations[newBlizzardNumber]
-    return (current.you.neighbors4() + current.you).filter { valley.inBounds(it) && !newBlizzards.containsKey(it) }
+    (current.you.neighbors4() + current.you).filter { valley.inBounds(it) && !newBlizzards.containsKey(it) }
       .map { current.copy(blizzardConfigurationNumber = newBlizzardNumber, you = it) }
       .map { copy(current = it, cost = cost + 1) }
   }
 
-  override fun isSolution(): Boolean = distanceHeuristic() == 0
-  override fun distanceHeuristic(): Int = current.you.manhattanDistanceTo(goal) 
+  override val isSolution by lazy { distanceHeuristic == 0 }
+  override val distanceHeuristic: Int by lazy { current.you.manhattanDistanceTo(goal)} 
 
   fun draw(): String = valley.area.points().groupBy { it.y }.entries.sortedBy { it.key }.joinToString("\n") {
     it.value.joinToString("") {
