@@ -118,3 +118,16 @@ fun <T> List<T>.replaceFirst(transform: (T) -> T): List<T> = replaceFirst(transf
 fun <T> List<T>.circularGet(index: Int) = get(index.mod(size))
 fun <T> List<T>.rotate(): List<T> = drop(1) + first()
 fun <T> List<T>.moveToEnd(element: T): List<T> = filter { it != element } + element
+
+class PeekingIterator<out T>(private val iterator: Iterator<T>) : Iterator<T> {
+  private var peeked: T? = null
+  override fun hasNext(): Boolean = peeked?.let { true } ?: iterator.hasNext()
+  override fun next(): T = peeked?.also { peeked = null } ?: iterator.next()
+  fun peek(): T? = peeked ?: if (hasNext()) iterator.next().also { peeked = it } else null
+  fun whilePeek(predicate: (T?) -> Boolean): Sequence<Unit> = generateSequence { }.takeWhile { predicate(peek()) }
+  fun takeWhilePeek(predicate: (T?) -> Boolean): Sequence<T> = whilePeek(predicate).map { next() }
+}
+
+fun <T> Iterable<T>.peekingIterator() = PeekingIterator(iterator())
+fun <T> Sequence<T>.peekingIterator() = PeekingIterator(iterator())
+fun CharSequence.peekingIterator() = PeekingIterator(iterator())
