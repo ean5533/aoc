@@ -18,19 +18,14 @@ fun main() {
 
 private object PacketComparator : Comparator<Packet> {
   override fun compare(first: Packet, second: Packet): Int {
-    return when {
-      first is Packet.Literal && second is Packet.Literal -> first.value.compareTo(second.value)
-      first is Packet.Literal && second is Packet.List -> compare(Packet.List(listOf(first)), second)
-      first is Packet.List && second is Packet.Literal -> compare(first, Packet.List(listOf(second)))
-      first is Packet.List && second is Packet.List -> {
-        val zipComparison = first.values.zip(second.values)
-          .map { compare(it.first, it.second) }
-          .takeWhileInclusive { it == 0 }.lastOrNull() ?: 0
-        if (zipComparison != 0) zipComparison else first.values.size.compareTo(second.values.size)
-      }
+    if (first is Packet.Literal && second is Packet.Literal) return first.value.compareTo(second.value)
 
-      else -> throw IllegalStateException()
-    }
+    val firstList = first as? Packet.List ?: Packet.List(first)
+    val secondList = second as? Packet.List ?: Packet.List(second)
+    val zipComparison = firstList.values.zip(secondList.values)
+      .map { compare(it.first, it.second) }
+      .takeWhileInclusive { it == 0 }.lastOrNull() ?: 0
+    return if (zipComparison != 0) zipComparison else firstList.values.size.compareTo(secondList.values.size)
   }
 }
 
