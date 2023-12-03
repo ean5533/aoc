@@ -24,6 +24,29 @@ data class Point2D(val x: Int, val y: Int) {
   fun neighbors4(): List<Point2D> = adjacency4Offsets.map { this + it }
   fun neighbors8(): List<Point2D> = adjacency8Offsets.map { this + it }
 
+  fun adjacentToCardinally(other: Point2D): Boolean {
+    return neighbors4().contains(other)
+  }
+
+  fun adjacentToDiagonally(other: Point2D): Boolean {
+    // Performs a little better than neighbors8().contains(other)
+    return x >= other.x - 1 &&
+      x <= other.x + 1 &&
+      y >= other.y - 1 &&
+      y <= other.y + 1
+  }
+
+  fun adjacentToDiagonally(line: Line2D): Boolean {
+    check(line.start.x == line.end.x || line.start.y == line.end.y) {
+      "This method's implementation currently only works for flat lines"
+    }
+
+    return x >= line.start.x - 1 &&
+      x <= line.end.x + 1 &&
+      y >= line.start.y - 1 &&
+      y <= line.end.y + 1
+  }
+
   operator fun plus(other: Point2D) = Point2D(x + other.x, y + other.y)
   operator fun minus(other: Point2D) = Point2D(x - other.x, y - other.y)
   operator fun rangeTo(other: Point2D) = Line2D(this, other)
