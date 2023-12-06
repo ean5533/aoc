@@ -34,7 +34,7 @@ private fun part2() {
     }
   }
 
-  val powers = gameMins.map { it.values.fold(1) { acc, i -> acc * i } }
+  val powers = gameMins.map { it.values.reduce { acc, i -> acc * i } }
   println(powers.sum())
 }
 
