@@ -27,7 +27,7 @@ private fun part2() {
   println(winWays)
 }
 
-data class Race(val recordTime: Long, val distance: Long) {
+private data class Race(val recordTime: Long, val distance: Long) {
   fun winningHoldTimes(): List<Long> =
     (1 until recordTime).map { timeToTravel(it, distance) }.filter { it < recordTime }
 
