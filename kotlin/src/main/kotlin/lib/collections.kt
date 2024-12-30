@@ -131,3 +131,8 @@ class PeekingIterator<out T>(private val iterator: Iterator<T>) : Iterator<T> {
 fun <T> Iterable<T>.peekingIterator() = PeekingIterator(iterator())
 fun <T> Sequence<T>.peekingIterator() = PeekingIterator(iterator())
 fun CharSequence.peekingIterator() = PeekingIterator(iterator())
+
+fun <T> Iterable<T>.indexesOf(e: T) = indexesOf { it == e }
+inline fun <T> Iterable<T>.indexesOf(predicate: (T) -> Boolean)
+  = mapIndexedNotNull{ index, elem -> index.takeIf{ predicate(elem) } }
+
