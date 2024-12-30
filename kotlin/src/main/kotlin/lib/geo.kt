@@ -21,8 +21,14 @@ data class Point2D(val x: Int, val y: Int) {
   }
 
   fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
-  fun neighbors4(): List<Point2D> = adjacency4Offsets.map { this + it }
-  fun neighbors8(): List<Point2D> = adjacency8Offsets.map { this + it }
+  fun translations(translations: List<Point2D>): List<Point2D> = translations.map { this + it }
+  fun neighbors4(): List<Point2D> = translations(adjacency4Offsets)
+  fun neighbors8(): List<Point2D> = translations(adjacency8Offsets)
+  
+  fun lines8(length: Int): List<Line2D> {
+    require(length >= 1)
+    return adjacency8Offsets.map { Line2D(this, this + it.scale(length-1)) }
+  }
 
   fun adjacentToCardinally(other: Point2D): Boolean {
     return neighbors4().contains(other)
@@ -111,6 +117,13 @@ data class Area2D(val xRange: IntRange, val yRange: IntRange) {
   fun points(): List<Point2D> = xRange.flatMap { x -> yRange.map { y -> Point2D(x, y) } }
   fun contains(x: Int, y: Int) = xRange.contains(x) && yRange.contains(y)
   fun contains(point: Point2D) = xRange.contains(point.x) && yRange.contains(point.y)
+  fun contains(line: Line2D) = contains(line.start) && contains(line.end)
+  
+  fun shrink(amount: Int): Area2D {
+    require(width > amount * 2)
+    require(height > amount * 2)
+    return create(xMin + amount, xMax - amount, yMin + amount, yMax - amount)
+  }
 
   companion object {
     fun create(x1: Int, x2: Int, y1: Int, y2: Int): Area2D =
