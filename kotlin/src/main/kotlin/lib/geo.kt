@@ -85,17 +85,25 @@ fun Iterable<Int>.toPoint2D(): Point2D {
 fun Pair<Int, Int>.toPoint2D(): Point2D = Point2D(first, second)
 
 data class Line2D(val start: Point2D, val end: Point2D) {
-  init {
-    // Ensure it's a vertical, horizontal, or 45-degree diagonal line (this class can't handle anything else)
-    require(start.x == end.x || start.y == end.y || (end.x - start.x).absoluteValue == (end.y - start.y).absoluteValue)
-  }
+  fun scaleEnd(scalar: Int): Line2D = copy(
+    end = Point2D(
+      x = start.x + (end.x - start.x) * scalar,
+      y = start.y + (end.y - start.y) * scalar,
+    )
+  )
 
+  fun flip(): Line2D = Line2D(end, start)
   fun points() = asSequence().toList()
   fun asSequence(): Sequence<Point2D> {
-    val xRange = if (start.x == end.x) generateSequence { start.x } else (start.x smartRange end.x).asSequence()
-    val yRange = if (start.y == end.y) generateSequence { start.y } else (start.y smartRange end.y).asSequence()
+    val width = end.x - start.x
+    val height = end.y - start.y
+    val gcd = gcd(abs(width), abs(height))
+    val xStep = width / gcd
+    val yStep = height / gcd
 
-    return xRange.zip(yRange).map { (x, y) -> Point2D(x, y) }
+    return generateSequence(start) { current ->
+      if (current == end) null else current.shift(xStep, yStep)
+    }
   }
 }
 
@@ -103,6 +111,7 @@ data class Area2D(val xRange: IntRange, val yRange: IntRange) {
   constructor(size: Int, origin: Point2D = Point2D.ORIGIN) : this(size, size, origin)
   constructor(width: Int, height: Int, origin: Point2D = Point2D.ORIGIN) :
     this(origin.x until origin.x + width, origin.y until origin.y + height)
+
   constructor(x1: Int, x2: Int, y1: Int, y2: Int) :
     this(min(x1, x2)..max(x1, x2), min(y1, y2)..max(y1, y2))
 

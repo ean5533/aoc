@@ -5,6 +5,10 @@ package lib
 fun <S, T> Iterable<S>.cartesianProduct(other: Iterable<T>) =
   flatMap { first -> other.map { second -> first to second } }
 
+// TODO: improve perf
+fun <T> Iterable<T>.uniquePairs() =
+  flatMapIndexed { x, first -> mapIndexedNotNull { y, second -> if(x < y) first to second else null } }
+
 infix fun Int.smartRange(to: Int): IntProgression = if (this < to) this..to else this downTo to
 
 fun <T> Grouping<Pair<T, Long>, T>.sumCounts(): Map<T, Long> = fold(0L) { total, count -> total + count.second }
@@ -133,6 +137,6 @@ fun <T> Sequence<T>.peekingIterator() = PeekingIterator(iterator())
 fun CharSequence.peekingIterator() = PeekingIterator(iterator())
 
 fun <T> Iterable<T>.indexesOf(e: T) = indexesOf { it == e }
-inline fun <T> Iterable<T>.indexesOf(predicate: (T) -> Boolean)
-  = mapIndexedNotNull{ index, elem -> index.takeIf{ predicate(elem) } }
+inline fun <T> Iterable<T>.indexesOf(predicate: (T) -> Boolean): List<Int> =
+  mapIndexedNotNull{ index, elem -> index.takeIf{ predicate(elem) } }
 
