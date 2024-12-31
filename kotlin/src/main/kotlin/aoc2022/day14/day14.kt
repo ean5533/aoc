@@ -15,7 +15,7 @@ private fun parseInput(): Set<Line2D> = input.lines().flatMap {
 }.toSet()
 
 private class Cave(rockLines: Set<Line2D>, useInfinifloor: Boolean = false) {
-    private val nonEmptySpaces = rockLines.flatMap { it.toSequence() }.associateWith { Cave.ROCK }.toMutableMap()
+    private val nonEmptySpaces = rockLines.flatMap { it.asSequence() }.associateWith { Cave.ROCK }.toMutableMap()
         .also { it.put(sandSource, Cave.SOURCE) }
     private val floor = nonEmptySpaces.keys.maxOf { it.y }
     private val infinifloor = if (useInfinifloor) floor + 2 else Int.MAX_VALUE

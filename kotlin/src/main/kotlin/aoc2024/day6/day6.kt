@@ -26,13 +26,13 @@ private fun parseInput(): Board {
 
 private fun part1() {
   val final = generateSequence(initialBoard) { current -> current.next() }.last()
-  println(final.traveled.flatMap { it.toSequence() }.toSet().count())
+  println(final.traveled.flatMap { it.asSequence() }.toSet().count())
 }
 
 private fun part2() {
   // First find all potential spaces to put obstacles (everywere the guard walks, except where they start)
   val final = generateSequence(initialBoard) { current -> current.next() }.last()
-  val candidates = final.traveled.flatMap { it.toSequence() }.toSet() - initialBoard.guard!!.position
+  val candidates = final.traveled.flatMap { it.asSequence() }.toSet() - initialBoard.guard!!.position
 
   // For each one, try putting an obstacle check for looping
   val loopMakers = candidates.filter { candidate ->
@@ -65,7 +65,7 @@ private data class Board(
       Direction.LEFT -> Line2D(guard.position, guard.position.copy(x = area.xMin))
     }
 
-    val stoppedAt = trajectory.toSequence().takeWhile { !obstacles.contains(it) }.last()
+    val stoppedAt = trajectory.asSequence().takeWhile { !obstacles.contains(it) }.last()
     if (stoppedAt == trajectory.end) {
       return moveGuardTo(null, trajectory)
     }

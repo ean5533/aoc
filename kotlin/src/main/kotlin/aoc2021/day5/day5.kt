@@ -41,7 +41,7 @@ private data class Topology(val width: Int, val height: Int, val ventLines: List
     fun toVentCounts(cardinalLinesOnly: Boolean): Map<Point2D, Int> {
         return ventLines
             .filter { it.start.x == it.end.x || it.start.y == it.end.y || !cardinalLinesOnly }
-            .flatMap(Line2D::toSequence)
+            .flatMap(Line2D::asSequence)
             .groupBy { it }
             .mapValues { it.value.count() }
     }

@@ -18,7 +18,7 @@ private fun part1() {
   val finds = area.points().sumOf {
     it.lines8(target.length)
       .filter { area.contains(it) }
-      .map { it.toSequence().map { grid[it.y][it.x] }.joinToString("") }
+      .map { it.asSequence().map { grid[it.y][it.x] }.joinToString("") }
       .count { it == target }
   }
   println(finds)

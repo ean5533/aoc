@@ -24,15 +24,13 @@ data class Point2D(val x: Int, val y: Int) {
   fun translations(translations: List<Point2D>): List<Point2D> = translations.map { this + it }
   fun neighbors4(): List<Point2D> = translations(adjacency4Offsets)
   fun neighbors8(): List<Point2D> = translations(adjacency8Offsets)
-  
+
   fun lines8(length: Int): List<Line2D> {
     require(length >= 1)
-    return adjacency8Offsets.map { Line2D(this, this + it.scale(length-1)) }
+    return adjacency8Offsets.map { Line2D(this, this + it.scale(length - 1)) }
   }
 
-  fun adjacentToCardinally(other: Point2D): Boolean {
-    return neighbors4().contains(other)
-  }
+  fun adjacentToCardinally(other: Point2D): Boolean = neighbors4().contains(other)
 
   fun adjacentToDiagonally(other: Point2D): Boolean {
     // Performs a little better than neighbors8().contains(other)
@@ -43,7 +41,7 @@ data class Point2D(val x: Int, val y: Int) {
   }
 
   fun adjacentToDiagonally(line: Line2D): Boolean {
-    check(line.start.x == line.end.x || line.start.y == line.end.y) {
+    require(line.start.x == line.end.x || line.start.y == line.end.y) {
       "This method's implementation currently only works for flat lines"
     }
 
@@ -89,10 +87,11 @@ fun Pair<Int, Int>.toPoint2D(): Point2D = Point2D(first, second)
 data class Line2D(val start: Point2D, val end: Point2D) {
   init {
     // Ensure it's a vertical, horizontal, or 45-degree diagonal line (this class can't handle anything else)
-    check(start.x == end.x || start.y == end.y || (end.x - start.x).absoluteValue == (end.y - start.y).absoluteValue)
+    require(start.x == end.x || start.y == end.y || (end.x - start.x).absoluteValue == (end.y - start.y).absoluteValue)
   }
 
-  fun toSequence(): Sequence<Point2D> {
+  fun points() = asSequence().toList()
+  fun asSequence(): Sequence<Point2D> {
     val xRange = if (start.x == end.x) generateSequence { start.x } else (start.x smartRange end.x).asSequence()
     val yRange = if (start.y == end.y) generateSequence { start.y } else (start.y smartRange end.y).asSequence()
 
@@ -104,6 +103,8 @@ data class Area2D(val xRange: IntRange, val yRange: IntRange) {
   constructor(size: Int, origin: Point2D = Point2D.ORIGIN) : this(size, size, origin)
   constructor(width: Int, height: Int, origin: Point2D = Point2D.ORIGIN) :
     this(origin.x until origin.x + width, origin.y until origin.y + height)
+  constructor(x1: Int, x2: Int, y1: Int, y2: Int) :
+    this(min(x1, x2)..max(x1, x2), min(y1, y2)..max(y1, y2))
 
   val xMin = xRange.start
   val xMax = xRange.endInclusive
@@ -114,20 +115,19 @@ data class Area2D(val xRange: IntRange, val yRange: IntRange) {
 
   fun origin(): Point2D = Point2D(xRange.start, yRange.start)
   fun size(): Long = xRange.count().toLong() * yRange.count().toLong()
-  fun points(): List<Point2D> = xRange.flatMap { x -> yRange.map { y -> Point2D(x, y) } }
+  fun points(): List<Point2D> = asSequence().toList()
+  fun asSequence(): Sequence<Point2D> = xRange.asSequence().flatMap { x ->
+    yRange.asSequence().map { y -> Point2D(x, y) }
+  }
+
   fun contains(x: Int, y: Int) = xRange.contains(x) && yRange.contains(y)
   fun contains(point: Point2D) = xRange.contains(point.x) && yRange.contains(point.y)
   fun contains(line: Line2D) = contains(line.start) && contains(line.end)
-  
+
   fun shrink(amount: Int): Area2D {
     require(width > amount * 2)
     require(height > amount * 2)
-    return create(xMin + amount, xMax - amount, yMin + amount, yMax - amount)
-  }
-
-  companion object {
-    fun create(x1: Int, x2: Int, y1: Int, y2: Int): Area2D =
-      Area2D(min(x1, x2)..max(x1, x2), min(y1, y2)..max(y1, y2))
+    return Area2D(xMin + amount, xMax - amount, yMin + amount, yMax - amount)
   }
 }
 
@@ -180,6 +180,12 @@ data class Area3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
   fun origin(): Point3D = Point3D(xRange.start, yRange.start, zRange.start)
   fun size(): Long = xRange.count().toLong() * yRange.count().toLong() * zRange.count().toLong()
   fun points(): List<Point3D> = xRange.flatMap { x -> yRange.flatMap { y -> zRange.map { z -> Point3D(x, y, z) } } }
+  fun asSequence(): Sequence<Point3D> = xRange.asSequence().flatMap { x ->
+    yRange.asSequence().flatMap { y ->
+      zRange.asSequence().map { z -> Point3D(x, y, z) }
+    }
+  }
+
   fun contains(point: Point3D) = xRange.contains(point.x) && yRange.contains(point.y) && zRange.contains(point.z)
 
   fun minus(other: Area3D): List<Area3D> {

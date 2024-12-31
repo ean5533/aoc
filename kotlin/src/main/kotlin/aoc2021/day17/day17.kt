@@ -17,7 +17,7 @@ fun main() {
 private fun parseInput(): Area2D {
     val (x1, x2, y1, y2) = input.replace("target area: x=", "").replace("y=", "")
         .split(", ").flatMap { it.split("..") }.map { it.toInt() }
-    return Area2D.create(x1, x2, y1, y2)
+    return Area2D(x1, x2, y1, y2)
 }
 
 private fun part1(target: Area2D) {
