@@ -11,15 +11,10 @@ data class Point2D(val x: Int, val y: Int) {
   fun shift(amount: Point2D) = copy(x = x + amount.x, y = y + amount.y)
   fun shiftX(amount: Int) = copy(x = x + amount)
   fun shiftY(amount: Int) = copy(y = y + amount)
-  fun moveWithin(area: Area2D, move: Point2D): Point2D = (this + move).let {
-    when {
-      it.x < area.xMin -> it.copy(x = area.xMax)
-      it.x > area.xMax -> it.copy(x = area.xMin)
-      it.y < area.yMin -> it.copy(y = area.yMax)
-      it.y > area.yMax -> it.copy(y = area.yMin)
-      else -> it
-    }
-  }
+  fun shiftWithin(shift: Point2D, area: Area2D): Point2D = Point2D(
+    (x + shift.x).modToRange(area.xMin, area.xMax),
+    (y + shift.y).modToRange(area.yMin, area.yMax),
+  )
 
   fun manhattanDistanceTo(other: Point2D): Int = abs(x - other.x) + abs(y - other.y)
   fun translations(translations: List<Point2D>): List<Point2D> = translations.map { this + it }

@@ -48,7 +48,7 @@ private fun parseInput(): Valley {
 }
 
 private data class Blizzard(val position: Point2D, val direction: Point2D) {
-  fun moveWithin(area: Area2D) = copy(position = position.moveWithin(area, direction))
+  fun moveWithin(area: Area2D) = copy(position = position.shiftWithin(direction, area))
 }
 
 private data class Valley(val area: Area2D, val blizzardConfigurations: List<Map<Point2D, List<Blizzard>>>) {
