@@ -8,6 +8,7 @@ import kotlin.math.absoluteValue
 data class Point2D(val x: Int, val y: Int) {
   fun scale(scalar: Int) = copy(x = x * scalar, y = y * scalar)
   fun shift(amountX: Int, amountY: Int) = copy(x = x + amountX, y = y + amountY)
+  fun shift(amount: Point2D) = copy(x = x + amount.x, y = y + amount.y)
   fun shiftX(amount: Int) = copy(x = x + amount)
   fun shiftY(amount: Int) = copy(y = y + amount)
   fun moveWithin(area: Area2D, move: Point2D): Point2D = (this + move).let {
@@ -68,10 +69,24 @@ data class Point2D(val x: Int, val y: Int) {
   fun transpose(): Point2D = copy(x = y, y = x)
   fun antiTranspose(area: Area2D): Point2D = transpose().flipX(area).flipY(area)
 
+  fun startFloodFill(include: (Point2D) -> Boolean): Set<Point2D> {
+    val filled = mutableSetOf<Point2D>()
+    val queue = ArrayDeque(listOf(this))
+    while(queue.isNotEmpty()) {
+      val it = queue.pop()!!
+      if (include(it) && filled.add(it)) queue.addAll(it.neighbors4())
+    }
+    return filled
+  }
+
   override fun toString(): String = "[x:$x, y:$y]"
 
   companion object {
     val ORIGIN = Point2D(0, 0)
+    val RIGHT = Point2D(1, 0)
+    val LEFT = Point2D(-1, 0)
+    val UP = Point2D(0, -1)
+    val DOWN = Point2D(0, 1)
     private val adjacency4Offsets: List<Point2D> = listOf(Point2D(0, 1), Point2D(0, -1), Point2D(1, 0), Point2D(-1, 0))
     private val adjacency8Offsets: List<Point2D> = (-1..1).cartesianProduct(-1..1).minus(0 to 0).map { it.toPoint2D() }
   }
@@ -97,9 +112,11 @@ data class Line2D(val start: Point2D, val end: Point2D) {
   fun asSequence(): Sequence<Point2D> {
     val width = end.x - start.x
     val height = end.y - start.y
-    val gcd = gcd(abs(width), abs(height))
-    val xStep = width / gcd
-    val yStep = height / gcd
+    val (xStep, yStep) = when {
+      height == 0 -> 1 to 0
+      width == 0 -> 0 to 1
+      else -> width / gcd(abs(width), abs(height)) to height / gcd(abs(width), abs(height))
+    }
 
     return generateSequence(start) { current ->
       if (current == end) null else current.shift(xStep, yStep)
@@ -159,7 +176,10 @@ data class Point3D(val x: Int, val y: Int, val z: Int) {
   fun startFloodFill(include: (Point3D) -> Boolean): Set<Point3D> {
     val filled = mutableSetOf<Point3D>()
     val queue = ArrayDeque(listOf(this))
-    queue.asSequence().forEach { if (include(it) && filled.add(it)) queue.addAll(it.neighbors()) }
+    while(queue.isNotEmpty()) {
+      val it = queue.pop()!!
+      if (include(it) && filled.add(it)) queue.addAll(it.neighbors())
+    }
     return filled
   }
 
